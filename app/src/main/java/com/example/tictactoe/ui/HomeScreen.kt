@@ -88,7 +88,7 @@ fun HomeScreen(
                             )
                             .fillMaxWidth(),
                         fontFamily = FontFamily(Font(R.font.kalam_bold,FontWeight.Bold)),
-                        fontSize= TextUnit(70f,type= TextUnitType.Sp),
+                        fontSize= TextUnit(55f,type= TextUnitType.Sp),
                         color = DeepOrange50
                     )
                 var name1 by rememberSaveable {
@@ -227,7 +227,8 @@ fun HomeScreen(
                         },
                         modifier= Modifier
                             .padding(
-                                top = 50.dp
+                                top = 50.dp,
+                                bottom = 50.dp
                             )
                             .wrapContentSize()
                             .align(Alignment.Center)

@@ -10,7 +10,7 @@ import kotlinx.coroutines.runBlocking
 
 fun main() {
     runBlocking {
-        val data=producer6()
+            val data=producer6()
 //        CoroutineScope(Dispatchers.IO).launch{
 //            delay(3000)
 //            println("First ${data.value}")
