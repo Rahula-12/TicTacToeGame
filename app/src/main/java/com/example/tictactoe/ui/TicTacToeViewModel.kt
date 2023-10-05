@@ -1,6 +1,9 @@
 package com.example.tictactoe.ui
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -8,7 +11,9 @@ import com.example.tictactoe.data.CurrScore
 import com.example.tictactoe.data.CurrScoreDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -29,7 +34,11 @@ data class GameState(
 class TicTacToeViewModel(private val currScoreDao: CurrScoreDao):ViewModel() {
     private val _gameState: MutableStateFlow<GameState> = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState
-
+    private val currScore: StateFlow<CurrScore> = currScoreDao.currScore().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = CurrScore()
+    )
     init {
         prevRecordExists()
     }
@@ -50,7 +59,7 @@ class TicTacToeViewModel(private val currScoreDao: CurrScoreDao):ViewModel() {
                 if (result != -1) {
                     if (result == 1) {
                         viewModelScope.launch(Dispatchers.Default) {
-                            val matchesWon1 = currScoreDao.matchWonByPlayer1()
+                            val matchesWon1 = currScore.value.matchWon1
                             _gameState.update {
                                 it.copy(
                                     winnerFound = result,
@@ -61,7 +70,7 @@ class TicTacToeViewModel(private val currScoreDao: CurrScoreDao):ViewModel() {
                         }
                     } else if (result == 2) {
                         viewModelScope.launch(Dispatchers.Default) {
-                            val matchesWon2 = currScoreDao.matchWonByPlayer2()
+                            val matchesWon2 = currScore.value.matchWon2
                             _gameState.update {
                                 it.copy(
                                     winnerFound = result,
@@ -72,7 +81,7 @@ class TicTacToeViewModel(private val currScoreDao: CurrScoreDao):ViewModel() {
                         }
                     } else {
                         viewModelScope.launch(Dispatchers.Default) {
-                            val draw = currScoreDao.numberOfDraw()
+                            val draw = currScore.value.draw
                             _gameState.update {
                                 it.copy(
                                     winnerFound = result,
@@ -184,8 +193,8 @@ class TicTacToeViewModel(private val currScoreDao: CurrScoreDao):ViewModel() {
                 currScoreDao.updateDraw(0)
                 _gameState.update {
                     it.copy(
-                        name1 = currScoreDao.player1Name(),
-                        name2 = currScoreDao.player2Name(),
+                        name1 = currScore.value.name1,
+                        name2 = currScore.value.name2,
                         matchesWon1 = 0,
                         matchesWon2 = 0,
                         draw = 0
@@ -207,10 +216,20 @@ class TicTacToeViewModel(private val currScoreDao: CurrScoreDao):ViewModel() {
                     draw = 0
                 )
             )
+            Log.d("latest",currScoreDao.currScore().stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = CurrScore()
+            ).value.toString())
+//            currScore=currScoreDao.currScore().stateIn(
+//                scope = viewModelScope,
+//                started = SharingStarted.WhileSubscribed(5000),
+//                initialValue = CurrScore()
+//            )
             _gameState.update {
                 it.copy(
-                    name1 = currScoreDao.player1Name(),
-                    name2 = currScoreDao.player2Name(),
+                    name1 = currScore.value.name1,
+                    name2 = currScore.value.name2,
                     turn = 0,
                     matchesWon1 = 0,
                     matchesWon2 = 0,
@@ -227,7 +246,7 @@ class TicTacToeViewModel(private val currScoreDao: CurrScoreDao):ViewModel() {
     }
 
     private fun prevRecordExists() {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch{
 //            Log.d("test",currScoreDao.prevRecordCount().toString())
             val count = currScoreDao.prevRecordCount()
             _gameState.update {
@@ -237,13 +256,19 @@ class TicTacToeViewModel(private val currScoreDao: CurrScoreDao):ViewModel() {
             }
 //            Log.d("test3", gameState.value.prevRecord.toString())
             if (gameState.value.prevRecord) {
+//                currScore=currScoreDao.currScore().stateIn(
+//                    scope = viewModelScope,
+//                    started = SharingStarted.WhileSubscribed(5000),
+//                    initialValue = CurrScore()
+//                )
+                Log.d("latest",currScore.value.toString())
                 _gameState.update {
                     it.copy(
-                        name1 = currScoreDao.player1Name(),
-                        name2 = currScoreDao.player2Name(),
-                        matchesWon1 = currScoreDao.matchWonByPlayer1(),
-                        matchesWon2 = currScoreDao.matchWonByPlayer2(),
-                        draw = currScoreDao.numberOfDraw(),
+                        name1 = currScore.value.name1,
+                        name2 = currScore.value.name2,
+                        matchesWon1 = currScore.value.matchWon1,
+                        matchesWon2 = currScore.value.matchWon2,
+                        draw = currScore.value.draw,
                         prevRecord = count > 0
                     )
                 }
