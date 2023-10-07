@@ -3,15 +3,16 @@ package com.example.tictactoe
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tictactoe.data.ScoreDataBase
 import com.example.tictactoe.ui.TicTacToeApp
 import com.example.tictactoe.ui.TicTacToeViewModel
-import com.example.tictactoe.ui.TicTacToeViewModelFactory
 import com.example.tictactoe.ui.theme.TicTacToeTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,8 +25,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val factory = TicTacToeViewModelFactory(ScoreDataBase.getDatabase(this).currScoreDao())
-                    val viewModel = ViewModelProvider(this, factory)[TicTacToeViewModel::class.java]
+                    val viewModel = viewModel<TicTacToeViewModel>(factory = TicTacToeViewModel.factory)
                     TicTacToeApp(viewModel)
                 }
             }
