@@ -10,23 +10,28 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -67,6 +72,16 @@ fun FixedGrid(
     onBackButtonClick:()->Unit={}
 ) {
     val gameState: GameState =viewModel.gameState.collectAsState().value
+    if(gameState.winnerFound!=-1) {
+        WinnerAlert({viewModel.reset(1)},
+            winner = gameState.winnerFound,
+            name = when(gameState.winnerFound){
+                0->""
+                1->gameState.name1
+                else->gameState.name2
+            }
+        )
+    }
     Scaffold(
         topBar = {
                 TopAppBar(
@@ -133,7 +148,7 @@ fun FixedGrid(
                     ,
                     contentAlignment = Alignment.Center
                 ) {
-                    GameBoard()
+                    GameBoard(direction = gameState.direction)
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
@@ -260,4 +275,40 @@ fun FixedGrid(
             }
         }
     }
+
+@Composable
+fun WinnerAlert(onDismissRequest: () -> Unit,winner:Int,name:String) {
+    AlertDialog(
+        containerColor = DeepOrange50300,
+        onDismissRequest = { onDismissRequest() },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text(
+                    "OK",
+                    fontFamily = FontFamily(Font(R.font.kalam_bold))
+                )
+            }
+        },
+        text = {
+            Text(
+                text = when(winner) {
+                    0 -> "Game Draw! Better luck next time 🙂"
+                    else -> "$name wins 🎉"
+
+                },
+                modifier=Modifier
+                    .fillMaxHeight(0.3f)
+                    .fillMaxWidth()
+                ,
+                textAlign = TextAlign.Center,
+                fontFamily = FontFamily(Font(R.font.kalam_bold)),
+                fontSize = TextUnit(20f, type = TextUnitType.Sp)
+            )
+        }
+    )
+}
 

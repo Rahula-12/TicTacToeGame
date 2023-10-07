@@ -19,10 +19,12 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -44,7 +46,8 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import com.example.tictactoe.R
 import com.example.tictactoe.ui.theme.DeepOrange50
-import com.example.tictactoe.ui.theme.DeepOrange50400
+import com.example.tictactoe.ui.theme.DeepOrange50200
+import com.example.tictactoe.ui.theme.DeepOrange50300
 import com.example.tictactoe.ui.theme.DeepOrange50700
 import com.example.tictactoe.ui.theme.DeepOrange50900
 import com.example.tictactoe.ui.theme.Orange50400
@@ -60,6 +63,12 @@ fun HomeScreen(
     onNextClick:()->Unit={}
 ){
     val gameState=viewModel.gameState.collectAsState().value
+    if(gameState.emptyName) {
+        ShowAlert({ viewModel.showAlert(0) },0)
+    }
+    if(gameState.sameName) {
+        ShowAlert({ viewModel.showAlert(1) },1)
+    }
         Box(
             modifier = modifier.fillMaxSize()
         ){
@@ -112,7 +121,11 @@ fun HomeScreen(
                                 fontFamily = FontFamily(Font(R.font.kalam_bold)),
                                 fontSize = TextUnit(30f,type=TextUnitType.Sp),
                                 color= DeepOrange50900,
-//                                modifier = Modifier.fillMaxWidth(0.2f)
+                                modifier = Modifier
+                                    .fillMaxWidth(0.2f)
+                                    .padding(
+                                        top=10.dp
+                                    )
 //                                    .weight(1f)
                             )
                             TextField(
@@ -154,8 +167,10 @@ fun HomeScreen(
                                 text = "PlayerX:",
                                 fontFamily = FontFamily(Font(R.font.kalam_bold)),
                                 fontSize = TextUnit(30f,type=TextUnitType.Sp),
-                                color= DeepOrange50400,
-//                                modifier = Modifier.fillMaxWidth(0.2f)
+                                color= DeepOrange50200,
+                                modifier = Modifier.fillMaxWidth(0.2f).padding(
+                                    top=10.dp
+                                )
                             )
                             TextField(
                                 value = name2,
@@ -188,15 +203,22 @@ fun HomeScreen(
                         Button(
                             onClick = {
                                 if(name1.isNotEmpty() && name2.isNotEmpty()) {
-                                    if(gameState.prevRecord) {
+                                    if(name1==name2) viewModel.showAlert(1)
+                                    else if(gameState.prevRecord) {
                                         viewModel.reset(0, name1, name2)
+                                        name1=""
+                                        name2=""
+                                        onNextClick()
                                     }
                                     else {
                                         viewModel.insertRecord(name1, name2)
+                                        name1=""
+                                        name2=""
+                                        onNextClick()
                                     }
-                                    name1=""
-                                    name2=""
-                                    onNextClick()
+                                }
+                                else {
+                                    viewModel.showAlert(0)
                                 }
                             },
                             modifier= Modifier
@@ -212,7 +234,7 @@ fun HomeScreen(
                             Text(
                                 text = "New Match",
                                 fontFamily = FontFamily(Font(R.font.kalam_bold)),
-                                fontSize = TextUnit(32f,TextUnitType.Sp),
+                                fontSize = TextUnit(25f,TextUnitType.Sp),
                                 color=Red50100
 
                             )
@@ -223,6 +245,8 @@ fun HomeScreen(
                     .wrapContentHeight()){
                     Button(
                         onClick = {
+                            name1=""
+                            name2=""
                             onNextClick()
                         },
                         modifier= Modifier
@@ -245,7 +269,7 @@ fun HomeScreen(
                         Text(
                             text = "Prev Match",
                             fontFamily = FontFamily(Font(R.font.kalam_bold)),
-                            fontSize = TextUnit(32f,TextUnitType.Sp),
+                            fontSize = TextUnit(25f,TextUnitType.Sp),
 //                            color= Brown50400
                         )
                     }
@@ -253,6 +277,39 @@ fun HomeScreen(
             }
         }
 }
+
+@Composable
+fun ShowAlert(onDismissRequest: () -> Unit,check:Int) {
+    AlertDialog(
+        containerColor = DeepOrange50300,
+        onDismissRequest = { onDismissRequest() },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text(
+                    "OK",
+                    fontFamily = FontFamily(Font(R.font.kalam_bold))
+                )
+            }
+        },
+        text = {
+            Text(
+                text = if(check==0) "PlayerO and PlayerX can't be empty."
+                else "PlayerO and PlayerX can't be same.",
+                modifier=Modifier
+                    .wrapContentSize()
+                ,
+                textAlign = TextAlign.Left,
+                fontFamily = FontFamily(Font(R.font.kalam_bold)),
+                fontSize = TextUnit(20f, type = TextUnitType.Sp)
+            )
+        }
+    )
+}
+
 
 //@Composable
 //@Preview(showSystemUi = true, showBackground = true)
