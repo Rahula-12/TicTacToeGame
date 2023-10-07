@@ -23,7 +23,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun GameBoard(modifier:Modifier=Modifier){
+fun GameBoard(
+    modifier:Modifier=Modifier,
+    direction:Int=-1
+){
         Canvas(
             modifier = modifier
                 .fillMaxSize()
@@ -54,49 +57,59 @@ fun GameBoard(modifier:Modifier=Modifier){
                     start = Offset(0f,(size.height*2)/3),
                     end = Offset(size.width,(size.height*2)/3)
                 )
+                when(direction){
+                  1->drawLine(
+                      color= Color.Red,
+                      strokeWidth=20f,
+                      start = Offset(0f,size.height/6),
+                      end= Offset(size.width,size.height/6)
+                  )
+                    2->drawLine(
+                        color= Color.Red,
+                        strokeWidth=20f,
+                        start = Offset(0f,size.height/2),
+                        end= Offset(size.width,size.height/2)
+                    )
+                    3->drawLine(
+                        color= Color.Red,
+                        strokeWidth=20f,
+                        start = Offset(0f,size.height*5/6),
+                        end= Offset(size.width,size.height*5/6)
+                    )
+                    4->drawLine(
+                        color= Color.Red,
+                        strokeWidth=20f,
+                        start = Offset(size.width/6,0f),
+                        end= Offset(size.width/6,size.height)
+                    )
+                    5->drawLine(
+                        color= Color.Red,
+                        strokeWidth=20f,
+                        start = Offset(size.width/2,0f),
+                        end= Offset(size.width/2,size.height)
+                    )
+                    6->drawLine(
+                        color= Color.Red,
+                        strokeWidth=20f,
+                        start = Offset(size.width*5/6,0f),
+                        end= Offset(size.width*5/6,size.height)
+                    )
+                    7->drawLine(
+                        color= Color.Red,
+                        strokeWidth=20f,
+                        start=Offset(0f,0f),
+                        end=Offset(size.width,size.height)
+                    )
+                    8->drawLine(
+                        color= Color.Red,
+                        strokeWidth=20f,
+                        start=Offset(0f,size.height),
+                        end=Offset(size.width,0f)
+                    )
+                }
             }
         )
     }
-
-@Composable
-fun Cross(modifier: Modifier=Modifier){
-        Canvas(
-            modifier = modifier
-                .size(100.dp)
-                .background(Color.Transparent),
-            onDraw = {
-                drawLine(
-                    color=Color.Red,
-                    start= Offset(0f,0f),
-                    end= Offset(size.width,size.height),
-                    strokeWidth= 20f
-                )
-                drawLine(
-                    color=Color.Red,
-                    start= Offset(size.width,0f),
-                    end= Offset(0f,size.height),
-                    strokeWidth= 20f
-                )
-            }
-        )
-}
-
-@Composable
-fun Circle(modifier: Modifier=Modifier){
-    Canvas(
-        modifier = modifier
-            .size(100.dp)
-            .background(Color.Transparent)
-            .padding(5.dp)
-        ,
-        onDraw = {
-            drawCircle(
-                color=Color.Red,
-                style= Stroke(width=20f)
-            )
-        }
-    )
-}
 
 @Composable
 fun WinHorizontalLine1(modifier: Modifier=Modifier){
