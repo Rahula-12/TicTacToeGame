@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CurrScoreDao {
@@ -26,10 +25,21 @@ interface CurrScoreDao {
     @Query("Update CurrScore set draw=:draw")
     suspend fun updateDraw(draw:Int)
 
+    @Query("Select matchWon1 from CurrScore")
+    suspend fun matchWonByPlayer1():Int
+
+    @Query("Select matchWon2 from CurrScore")
+    suspend fun matchWonByPlayer2():Int
+
+    @Query("Select draw from CurrScore")
+    suspend fun numberOfDraw():Int
+
+    @Query("Select name1 from CurrScore")
+    suspend fun player1Name():String
+
+    @Query("Select name2 from CurrScore")
+    suspend fun player2Name():String
+
     @Query("Select count(*) from CurrScore")
     suspend fun prevRecordCount():Int
-
-    @Query("Select * from CurrScore limit 1")
-    fun currScore(): Flow<CurrScore>
-
 }
