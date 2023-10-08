@@ -3,6 +3,8 @@ package com.example.tictactoe.data
 import android.content.Context
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface GameRepository {
     suspend fun insertCurrentScore(currScore: CurrScore)
@@ -17,15 +19,7 @@ interface GameRepository {
 
     suspend fun updateDraw(draw:Int)
 
-    suspend fun matchWonByPlayer1():Int
-
-    suspend fun matchWonByPlayer2():Int
-
-    suspend fun numberOfDraw():Int
-
-    suspend fun player1Name():String
-
-    suspend fun player2Name():String
+    fun currScore():Flow<CurrScore>
 
     suspend fun prevRecordCount():Int
 }
@@ -42,16 +36,7 @@ class CurrScoreRepository(val currScoreDao: CurrScoreDao):GameRepository {
     override suspend fun updatePlayer2Score(score: Int) = currScoreDao.updatePlayer2Score(score)
 
     override suspend fun updateDraw(draw: Int) = currScoreDao.updateDraw(draw)
-
-    override suspend fun matchWonByPlayer1(): Int = currScoreDao.matchWonByPlayer1()
-
-    override suspend fun matchWonByPlayer2(): Int = currScoreDao.matchWonByPlayer2()
-
-    override suspend fun numberOfDraw(): Int = currScoreDao.numberOfDraw()
-
-    override suspend fun player1Name(): String = currScoreDao.player1Name()
-
-    override suspend fun player2Name(): String = currScoreDao.player2Name()
+    override fun currScore():Flow<CurrScore> = currScoreDao.currScore()
 
     override suspend fun prevRecordCount(): Int = currScoreDao.prevRecordCount()
 

@@ -1,5 +1,6 @@
 package com.example.tictactoe.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -9,8 +10,10 @@ import com.example.tictactoe.CurrScoreApplication
 import com.example.tictactoe.data.CurrScore
 import com.example.tictactoe.data.GameRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -34,8 +37,25 @@ data class GameState(
 class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
     private val _gameState: MutableStateFlow<GameState> = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState
-
+    private val currScore: Flow<CurrScore> = repository.currScore()
     init {
+        viewModelScope.launch {
+            currScore.collectLatest {
+//                Log.d("Test",it.toString())
+                if(it!=null) {
+                    _gameState.update { temp ->
+                        temp.copy(
+                            name1 = it.name1,
+                            name2 = it.name2,
+                            matchesWon1 = it.matchWon1,
+                            matchesWon2 = it.matchWon2,
+                            draw = temp.draw
+                        )
+                    }
+                }
+            }
+        }
+        Log.d("GameState",_gameState.value.toString())
         prevRecordExists()
     }
     fun showAlert(check:Int){
@@ -73,7 +93,7 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                 if (result != -1) {
                     if (result == 1) {
                         viewModelScope.launch(Dispatchers.Default) {
-                            val matchesWon1 = repository.matchWonByPlayer1()
+                            val matchesWon1 = gameState.value.matchesWon1
                             _gameState.update {
                                 it.copy(
                                     winnerFound = result,
@@ -85,7 +105,7 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                         }
                     } else if (result == 2) {
                         viewModelScope.launch(Dispatchers.Default) {
-                            val matchesWon2 = repository.matchWonByPlayer2()
+                            val matchesWon2 = gameState.value.matchesWon2
                             _gameState.update {
                                 it.copy(
                                     winnerFound = result,
@@ -97,7 +117,7 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                         }
                     } else {
                         viewModelScope.launch(Dispatchers.Default) {
-                            val draw = repository.numberOfDraw()
+                            val draw = gameState.value.draw
                             _gameState.update {
                                 it.copy(
                                     winnerFound = result,
@@ -245,11 +265,6 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                 repository.updateDraw(0)
                 _gameState.update {
                     it.copy(
-                        name1 = repository.player1Name(),
-                        name2 = repository.player2Name(),
-                        matchesWon1 = 0,
-                        matchesWon2 = 0,
-                        draw = 0,
                         direction = -1
                     )
                 }
@@ -271,12 +286,7 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
             )
             _gameState.update {
                 it.copy(
-                    name1 = repository.player1Name(),
-                    name2 = repository.player2Name(),
                     turn = 0,
-                    matchesWon1 = 0,
-                    matchesWon2 = 0,
-                    draw = 0,
                     direction = -1,
                     prevRecord=true,
                     visited = listOf(
@@ -302,11 +312,6 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
             if (gameState.value.prevRecord) {
                 _gameState.update {
                     it.copy(
-                        name1 = repository.player1Name(),
-                        name2 = repository.player2Name(),
-                        matchesWon1 = repository.matchWonByPlayer1(),
-                        matchesWon2 = repository.matchWonByPlayer2(),
-                        draw = repository.numberOfDraw(),
                         prevRecord = count > 0,
                         direction = -1
                     )
