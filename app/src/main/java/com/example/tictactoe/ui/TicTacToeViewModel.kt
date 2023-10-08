@@ -55,7 +55,7 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                 }
             }
         }
-        Log.d("GameState",_gameState.value.toString())
+//        Log.d("GameState",_gameState.value.toString())
         prevRecordExists()
     }
     fun showAlert(check:Int){
@@ -263,11 +263,6 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                 repository.updatePlayer1Score(0)
                 repository.updatePlayer2Score(0)
                 repository.updateDraw(0)
-                _gameState.update {
-                    it.copy(
-                        direction = -1
-                    )
-                }
             }
         }
     }
@@ -284,18 +279,18 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                     draw = 0
                 )
             )
-            _gameState.update {
-                it.copy(
-                    turn = 0,
-                    direction = -1,
-                    prevRecord=true,
-                    visited = listOf(
-                        mutableListOf(-1, -1, -1),
-                        mutableListOf(-1, -1, -1),
-                        mutableListOf(-1, -1, -1)
-                    ),
-                )
-            }
+        }
+        _gameState.update {
+            it.copy(
+                turn = 0,
+                direction = -1,
+                prevRecord=true,
+                visited = listOf(
+                    mutableListOf(-1, -1, -1),
+                    mutableListOf(-1, -1, -1),
+                    mutableListOf(-1, -1, -1)
+                ),
+            )
         }
     }
 
