@@ -49,7 +49,7 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                             name2 = it.name2,
                             matchesWon1 = it.matchWon1,
                             matchesWon2 = it.matchWon2,
-                            draw = temp.draw
+                            draw = it.draw
                         )
                     }
                 }
