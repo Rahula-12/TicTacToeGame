@@ -264,7 +264,7 @@ fun HomeScreen(
                             disabledContentColor=Red50100
                         ),
                         shape = RoundedCornerShape(10.dp),
-                        enabled = gameState.prevRecord
+                        enabled = gameState.name1!=""
                     ) {
                         Text(
                             text = "Prev Match",

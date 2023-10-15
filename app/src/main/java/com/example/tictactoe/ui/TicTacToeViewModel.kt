@@ -7,13 +7,17 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.tictactoe.CurrScoreApplication
+import com.example.tictactoe.DataStoreApplication
 import com.example.tictactoe.data.CurrScore
+import com.example.tictactoe.data.DataStoreRepository
 import com.example.tictactoe.data.GameRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -34,25 +38,27 @@ data class GameState(
     val prevRecord:Boolean=false
 )
 
-class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
+class TicTacToeViewModel(private val repository: DataStoreRepository):ViewModel() {
     private val _gameState: MutableStateFlow<GameState> = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState
-    private val currScore: Flow<CurrScore> = repository.currScore()
+    private val currScore: StateFlow<CurrScore> = repository.currScore.stateIn(
+        scope = viewModelScope,
+        initialValue = CurrScore(),
+        started = SharingStarted.WhileSubscribed(5000)
+    )
     init {
         viewModelScope.launch {
-            currScore.collectLatest {
+            currScore.collect {
 //                Log.d("Test",it.toString())
-                if(it!=null) {
                     _gameState.update { temp ->
                         temp.copy(
                             name1 = it.name1,
                             name2 = it.name2,
                             matchesWon1 = it.matchWon1,
                             matchesWon2 = it.matchWon2,
-                            draw = temp.draw
+                            draw = it.draw
                         )
                     }
-                }
             }
         }
 //        Log.d("GameState",_gameState.value.toString())
@@ -101,7 +107,7 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                                     direction = direction
                                 )
                             }
-                            repository.updatePlayer1Score(matchesWon1 + 1)
+                            repository.saveMatchWon1(matchesWon1 + 1)
                         }
                     } else if (result == 2) {
                         viewModelScope.launch(Dispatchers.Default) {
@@ -113,7 +119,7 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                                     direction = direction
                                 )
                             }
-                            repository.updatePlayer2Score(matchesWon2 + 1)
+                            repository.saveMatchWon2(matchesWon2 + 1)
                         }
                     } else {
                         viewModelScope.launch(Dispatchers.Default) {
@@ -124,7 +130,7 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                                     draw = draw + 1
                                 )
                             }
-                            repository.updateDraw(draw + 1)
+                            repository.saveDraw(draw + 1)
                         }
                     }
                 }
@@ -257,28 +263,17 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                 )
             }
         } else {
-            viewModelScope.launch {
-                repository.updatePlayer1Name(name1)
-                repository.updatePlayer2Name(name2)
-                repository.updatePlayer1Score(0)
-                repository.updatePlayer2Score(0)
-                repository.updateDraw(0)
-            }
+            insertRecord(name1,name2)
         }
     }
 
     fun insertRecord(name1: String, name2: String) {
         viewModelScope.launch {
-            repository.insertCurrentScore(
-                CurrScore(
-                    id = 0,
-                    name1 = name1,
-                    name2 = name2,
-                    matchWon1 = 0,
-                    matchWon2 = 0,
-                    draw = 0
-                )
-            )
+            repository.saveName1(name1)
+            repository.saveName2(name2)
+            repository.saveMatchWon1(0)
+            repository.saveMatchWon2(0)
+            repository.saveDraw(0)
         }
         _gameState.update {
             it.copy(
@@ -297,17 +292,18 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
     private fun prevRecordExists() {
         viewModelScope.launch(Dispatchers.Main) {
 //            Log.d("test",repository.prevRecordCount().toString())
-            val count = repository.prevRecordCount()
+            val count = repository.recordExist()
+            Log.d("resultVal2",count.toString())
             _gameState.update {
                 it.copy(
-                    prevRecord = count > 0
+                    prevRecord = count
                 )
             }
 //            Log.d("test3", gameState.value.prevRecord.toString())
             if (gameState.value.prevRecord) {
                 _gameState.update {
                     it.copy(
-                        prevRecord = count > 0,
+                        prevRecord = count,
                         direction = -1
                     )
                 }
@@ -316,9 +312,13 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
     }
     companion object{
         val factory= viewModelFactory { 
-            initializer { 
-                val application=this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as CurrScoreApplication
-                TicTacToeViewModel(application.container.repository)
+//            initializer {
+//                val application=this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as CurrScoreApplication
+//                TicTacToeViewModel(application.container.repository)
+//            }
+            initializer {
+                val application=this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as DataStoreApplication
+                TicTacToeViewModel(application.dataStoreRepository)
             }
         }
     }
