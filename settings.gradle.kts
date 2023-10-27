@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 rootProject.name = "TicTacToe"
 include(":app")
 include(":flowLearning")
+include(":KotlinOOPs")
