@@ -13,8 +13,7 @@ interface GameComponent {
 
     @Component.Factory
     interface Factory{
-
-        fun create(@BindsInstance context: Context)
+        fun create(@BindsInstance context: Context):GameComponent
 
     }
 

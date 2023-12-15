@@ -14,8 +14,13 @@ import com.example.tictactoe.data.ScoreDataBase
 import com.example.tictactoe.ui.TicTacToeApp
 import com.example.tictactoe.ui.TicTacToeViewModel
 import com.example.tictactoe.ui.theme.TicTacToeTheme
+import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var viewModel: TicTacToeViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -25,7 +30,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val viewModel = viewModel<TicTacToeViewModel>(factory = TicTacToeViewModel.factory)
+                    val component=(application as CurrScoreApplication).component
+                    component.inject(this)
                     TicTacToeApp(viewModel)
                 }
             }
