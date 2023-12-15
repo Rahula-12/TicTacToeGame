@@ -42,7 +42,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.0"
+        kotlinCompilerExtensionVersion = "1.4.3"
     }
     packagingOptions {
         resources {
@@ -78,7 +78,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
 
-    val daggerVersion = "2.40"
-    implementation("com.google.dagger:dagger:$daggerVersion")
-    kapt("com.google.dagger:dagger-compiler:$daggerVersion")
+    implementation("com.google.dagger:dagger-android:2.47")
+    implementation("com.google.dagger:dagger-android-support:2.47") // if you use the support libraries
+    kapt("com.google.dagger:dagger-android-processor:2.47")
+    kapt("com.google.dagger:dagger-compiler:2.47")
 }
