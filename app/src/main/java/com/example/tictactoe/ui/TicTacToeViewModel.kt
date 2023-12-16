@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.tictactoe.CurrScoreApplication
 import com.example.tictactoe.data.CurrScore
+import com.example.tictactoe.data.CurrScoreRepository
 import com.example.tictactoe.data.GameRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +36,7 @@ data class GameState(
     val prevRecord:Boolean=false
 )
 
-class TicTacToeViewModel @Inject constructor(private val repository: GameRepository):ViewModel() {
+class TicTacToeViewModel @Inject constructor(private val repository: CurrScoreRepository):ViewModel() {
     private val _gameState: MutableStateFlow<GameState> = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState
     private val currScore: Flow<CurrScore> = repository.currScore()
