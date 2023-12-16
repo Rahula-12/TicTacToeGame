@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class GameState(
     val name1:String="",
@@ -34,7 +35,7 @@ data class GameState(
     val prevRecord:Boolean=false
 )
 
-class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
+class TicTacToeViewModel @Inject constructor(private val repository: GameRepository):ViewModel() {
     private val _gameState: MutableStateFlow<GameState> = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState
     private val currScore: Flow<CurrScore> = repository.currScore()
@@ -311,14 +312,6 @@ class TicTacToeViewModel(private val repository: GameRepository):ViewModel() {
                         direction = -1
                     )
                 }
-            }
-        }
-    }
-    companion object{
-        val factory= viewModelFactory { 
-            initializer { 
-                val application=this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as CurrScoreApplication
-                TicTacToeViewModel(application.container.repository)
             }
         }
     }
