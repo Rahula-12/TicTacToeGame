@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import javax.inject.Inject
 
 interface GameRepository {
     suspend fun insertCurrentScore(currScore: CurrScore)
@@ -24,7 +25,7 @@ interface GameRepository {
     suspend fun prevRecordCount():Int
 }
 
-class CurrScoreRepository(val currScoreDao: CurrScoreDao):GameRepository {
+class CurrScoreRepository @Inject constructor(val currScoreDao: CurrScoreDao):GameRepository {
     override suspend fun insertCurrentScore(currScore: CurrScore) = currScoreDao.insertCurrentScore(currScore)
 
     override suspend fun updatePlayer1Name(name: String) = currScoreDao.updatePlayer1Name(name)
