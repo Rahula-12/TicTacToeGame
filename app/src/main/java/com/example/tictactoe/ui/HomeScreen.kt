@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,6 +24,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -54,6 +56,7 @@ import com.example.tictactoe.ui.theme.Orange50400
 import com.example.tictactoe.ui.theme.Red50100
 import com.example.tictactoe.ui.theme.Red50200
 import com.example.tictactoe.ui.theme.Red50600
+import java.time.format.TextStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,7 +113,9 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.Start,
                         modifier = Modifier
                             .padding(
-                                top = 80.dp
+                                top = 80.dp,
+                                start = 5.dp,
+                                end=5.dp
                             )
                             .fillMaxWidth()
                             .horizontalScroll(rememberScrollState()),
@@ -122,22 +127,25 @@ fun HomeScreen(
                                 fontSize = TextUnit(30f,type=TextUnitType.Sp),
                                 color= DeepOrange50900,
                                 modifier = Modifier
-                                    .fillMaxWidth(0.2f)
+                                    .fillMaxWidth(0.25f)
                                     .padding(
-                                        top=10.dp
-                                    )
-//                                    .weight(1f)
+                                       // top=10.dp,
+                                        start = 5.dp
+                                    ).background(DeepOrange50200)
+                                    .weight(1f)
                             )
-                            TextField(
+                            OutlinedTextField(
                                 value = name1,
                                 onValueChange = {
                                     name1=it
                                 },
                                 modifier = Modifier
-//                                    .weight(2.5f)
+                                    .weight(2.5f)
                                     .border(width = 0.dp, color = Color.Transparent)
-                                    .background(color = Color.Transparent)
-                                    .width(1000.dp),
+                                    .padding(
+                                        start = 5.dp
+                                    )
+                                    .background(color = DeepOrange50900),
                                 placeholder = {
                                     Text(
                                         text = "Enter your name",
@@ -154,10 +162,12 @@ fun HomeScreen(
                             )
                     }
                     Row(
-                        horizontalArrangement = Arrangement.Start,
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
                             .padding(
-                                top = 70.dp
+                                top = 70.dp,
+                                start = 5.dp,
+                                end=5.dp
                             )
                             .fillMaxWidth()
                             .horizontalScroll(rememberScrollState()),
@@ -168,24 +178,29 @@ fun HomeScreen(
                                 fontFamily = FontFamily(Font(R.font.kalam_bold)),
                                 fontSize = TextUnit(30f,type=TextUnitType.Sp),
                                 color= DeepOrange50200,
-                                modifier = Modifier.fillMaxWidth(0.2f).padding(
-                                    top=10.dp
-                                )
+                                modifier = Modifier.background(DeepOrange50900).fillMaxWidth(0.25f).padding(
+                                        // top=10.dp,
+                                        start = 5.dp,
+                                         end=5.dp
+                            ).weight(1f)
                             )
-                            TextField(
+                            OutlinedTextField(
                                 value = name2,
                                 onValueChange = {
                                     name2=it
                                 },
                                 modifier = Modifier
-//                                    .weight(2.5f)
+                                    .weight(2.5f)
                                     .border(width = 0.dp, color = Color.Transparent)
-                                    .background(color = Color.Transparent)
-                                    .width(1000.dp),
+                                    .padding(
+                                        start = 5.dp
+                                    ).background(color = DeepOrange50200)
+                                    ,
                                 placeholder = {
                                     Text(
                                         text = "Enter your name",
-                                        fontFamily = FontFamily(Font(R.font.kalam_bold))
+                                        fontFamily = FontFamily(Font(R.font.kalam_bold)),
+                                        color = Color.DarkGray
                                     )
                                 },
                                 trailingIcon = {
@@ -291,7 +306,8 @@ fun ShowAlert(onDismissRequest: () -> Unit,check:Int) {
             ) {
                 Text(
                     "OK",
-                    fontFamily = FontFamily(Font(R.font.kalam_bold))
+                    fontFamily = FontFamily(Font(R.font.kalam_bold)),
+                    color=Color.DarkGray
                 )
             }
         },
@@ -304,7 +320,8 @@ fun ShowAlert(onDismissRequest: () -> Unit,check:Int) {
                 ,
                 textAlign = TextAlign.Left,
                 fontFamily = FontFamily(Font(R.font.kalam_bold)),
-                fontSize = TextUnit(20f, type = TextUnitType.Sp)
+                fontSize = TextUnit(20f, type = TextUnitType.Sp),
+                color=Color.DarkGray
             )
         }
     )

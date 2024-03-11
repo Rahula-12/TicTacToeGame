@@ -289,7 +289,8 @@ fun WinnerAlert(onDismissRequest: () -> Unit,winner:Int,name:String) {
             ) {
                 Text(
                     "OK",
-                    fontFamily = FontFamily(Font(R.font.kalam_bold))
+                    fontFamily = FontFamily(Font(R.font.kalam_bold)),
+                    color= Color.DarkGray
                 )
             }
         },
@@ -301,12 +302,13 @@ fun WinnerAlert(onDismissRequest: () -> Unit,winner:Int,name:String) {
 
                 },
                 modifier=Modifier
-                    .fillMaxHeight(0.3f)
+                  //  .fillMaxHeight(0.3f)
                     .fillMaxWidth()
                 ,
                 textAlign = TextAlign.Center,
                 fontFamily = FontFamily(Font(R.font.kalam_bold)),
-                fontSize = TextUnit(20f, type = TextUnitType.Sp)
+                fontSize = TextUnit(20f, type = TextUnitType.Sp),
+                color = Color.DarkGray
             )
         }
     )
