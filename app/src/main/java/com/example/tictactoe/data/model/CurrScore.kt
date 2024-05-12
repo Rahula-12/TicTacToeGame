@@ -1,4 +1,4 @@
-package com.example.tictactoe.data
+package com.example.tictactoe.data.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

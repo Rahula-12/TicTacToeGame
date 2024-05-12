@@ -1,10 +1,8 @@
-package com.example.tictactoe.data
+package com.example.tictactoe.data.repository
 
-import android.content.Context
-import androidx.room.Insert
-import androidx.room.Query
+import com.example.tictactoe.data.database.CurrScoreDao
+import com.example.tictactoe.data.model.CurrScore
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 interface GameRepository {
@@ -25,7 +23,7 @@ interface GameRepository {
     suspend fun prevRecordCount():Int
 }
 
-class CurrScoreRepository @Inject constructor(val currScoreDao: CurrScoreDao):GameRepository {
+class CurrScoreRepository @Inject constructor(val currScoreDao: CurrScoreDao): GameRepository {
     override suspend fun insertCurrentScore(currScore: CurrScore) = currScoreDao.insertCurrentScore(currScore)
 
     override suspend fun updatePlayer1Name(name: String) = currScoreDao.updatePlayer1Name(name)

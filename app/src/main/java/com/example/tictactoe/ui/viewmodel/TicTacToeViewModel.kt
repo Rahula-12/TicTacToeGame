@@ -1,20 +1,17 @@
-package com.example.tictactoe.ui
+package com.example.tictactoe.ui.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.tictactoe.CurrScoreApplication
-import com.example.tictactoe.data.CurrScore
-import com.example.tictactoe.data.CurrScoreRepository
-import com.example.tictactoe.data.GameRepository
+import com.example.tictactoe.data.model.CurrScore
+import com.example.tictactoe.data.repository.CurrScoreRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,23 +39,32 @@ class TicTacToeViewModel @Inject constructor(private val repository: CurrScoreRe
     private val currScore: Flow<CurrScore> = repository.currScore()
     init {
         viewModelScope.launch {
-            currScore.collectLatest {
-//                Log.d("Test",it.toString())
-                if(it!=null) {
-                    _gameState.update { temp ->
-                        temp.copy(
-                            name1 = it.name1,
-                            name2 = it.name2,
-                            matchesWon1 = it.matchWon1,
-                            matchesWon2 = it.matchWon2,
-                            draw = it.draw
-                        )
+            prevRecordExists()
+            Log.d("Test",repository.prevRecordCount().toString())
+            if (gameState.value.prevRecord) {
+                currScore.collect {
+                    if (it != null) {
+                        _gameState.update { temp ->
+                            temp.copy(
+                                name1 = it.name1,
+                                name2 = it.name2,
+                                matchesWon1 = it.matchWon1,
+                                matchesWon2 = it.matchWon2,
+                                draw = it.draw
+                            )
+                        }
+                    }
+                    else {
+                        _gameState.update { temp ->
+                            temp.copy(
+                                prevRecord = false
+                            )
+                        }
                     }
                 }
             }
         }
 //        Log.d("GameState",_gameState.value.toString())
-        prevRecordExists()
     }
     fun showAlert(check:Int){
         var currStatus: Boolean
@@ -135,14 +141,29 @@ class TicTacToeViewModel @Inject constructor(private val repository: CurrScoreRe
     }
 
     private fun validateTicTacToe(visited: List<MutableList<Int>>): Array<Int> {
-        val arr:Array<Int> = arrayOf(-1,-1)
-        var allFilled = true
+        var arr:Array<Int> = arrayOf(-1,-1)
+        val allFilled:Array<Boolean> = arrayOf(true)
+        arr=validateRowWise(arr, visited,allFilled)
+        if(arr[1]!=-1)  return arr
+        arr=validateColumnWise(arr, visited)
+        if(arr[1]!=-1)  return arr
+        arr=validateLeftDiagonal(arr,visited)
+        if(arr[1]!=-1)  return arr
+        arr=validateRightDiagonal(arr,visited)
+        if(arr[1]!=-1)  return arr
+        if (allFilled[0]) {
+            arr[1]=0
+        }
+        return arr
+    }
+
+    private fun validateRowWise(arr:Array<Int>,visited: List<MutableList<Int>>,allFilled:Array<Boolean>):Array<Int> {
         for (i in 0..2) {
             var count1 = 0
             var notVisited = false
             for (j in 0..2) {
                 if (visited[i][j] == -1) {
-                    allFilled = false
+                    allFilled[0] = false
                     notVisited = true
                     break
                 }
@@ -161,6 +182,10 @@ class TicTacToeViewModel @Inject constructor(private val repository: CurrScoreRe
                 }
             }
         }
+        return arr
+    }
+
+    private fun validateColumnWise(arr: Array<Int>, visited: List<MutableList<Int>>):Array<Int> {
         for (j in 0..2) {
             var count1 = 0
             var notVisited = false
@@ -184,6 +209,10 @@ class TicTacToeViewModel @Inject constructor(private val repository: CurrScoreRe
                 }
             }
         }
+        return arr
+    }
+
+    private fun validateLeftDiagonal(arr: Array<Int>, visited: List<MutableList<Int>>):Array<Int> {
         var i = 0
         var j = 0
         var count1 = 0
@@ -209,10 +238,14 @@ class TicTacToeViewModel @Inject constructor(private val repository: CurrScoreRe
                 return arr
             }
         }
-        i = 0
-        j = 2
-        count1 = 0
-        notVisited = false
+        return arr
+    }
+
+    private fun validateRightDiagonal(arr: Array<Int>, visited: List<MutableList<Int>>):Array<Int> {
+        var i = 0
+        var j = 2
+        var count1 = 0
+        var notVisited = false
         while (j >= 0) {
             if (visited[i][j] == -1) {
                 notVisited = true
@@ -234,11 +267,9 @@ class TicTacToeViewModel @Inject constructor(private val repository: CurrScoreRe
                 return arr
             }
         }
-        if (allFilled) {
-            arr[1]=0
-        }
         return arr
     }
+
 
     fun reset(
         temp: Int,
@@ -284,6 +315,8 @@ class TicTacToeViewModel @Inject constructor(private val repository: CurrScoreRe
         }
         _gameState.update {
             it.copy(
+                name1=name1,
+                name2=name2,
                 turn = 0,
                 direction = -1,
                 prevRecord=true,
@@ -297,7 +330,7 @@ class TicTacToeViewModel @Inject constructor(private val repository: CurrScoreRe
     }
 
     private fun prevRecordExists() {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.Default) {
 //            Log.d("test",repository.prevRecordCount().toString())
             val count = repository.prevRecordCount()
             _gameState.update {

@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.tictactoe.ui.TicTacToeApp
-import com.example.tictactoe.ui.TicTacToeViewModel
+import com.example.tictactoe.ui.navigation.TicTacToeApp
+import com.example.tictactoe.ui.viewmodel.TicTacToeViewModel
 import com.example.tictactoe.ui.theme.TicTacToeTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

@@ -1,11 +1,10 @@
-package com.example.tictactoe.data
+package com.example.tictactoe.data.database
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import com.example.tictactoe.data.model.CurrScore
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 
 @Dao
 interface CurrScoreDao {

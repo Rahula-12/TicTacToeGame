@@ -1,4 +1,4 @@
-package com.example.tictactoe.ui
+package com.example.tictactoe.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -27,7 +25,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,6 +44,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import com.example.tictactoe.R
+import com.example.tictactoe.ui.viewmodel.TicTacToeViewModel
 import com.example.tictactoe.ui.theme.DeepOrange50
 import com.example.tictactoe.ui.theme.DeepOrange50200
 import com.example.tictactoe.ui.theme.DeepOrange50300
@@ -56,7 +54,6 @@ import com.example.tictactoe.ui.theme.Orange50400
 import com.example.tictactoe.ui.theme.Red50100
 import com.example.tictactoe.ui.theme.Red50200
 import com.example.tictactoe.ui.theme.Red50600
-import java.time.format.TextStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,9 +1,9 @@
-package com.example.tictactoe.data
+package com.example.tictactoe.data.database
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.tictactoe.data.database.CurrScoreDao
+import com.example.tictactoe.data.model.CurrScore
 
 @Database(entities = [CurrScore::class],version = 6, exportSchema = false)
 abstract class ScoreDataBase: RoomDatabase() {
