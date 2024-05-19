@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tictactoe.data.model.CurrScore
 import com.example.tictactoe.data.repository.CurrScoreRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,36 +31,42 @@ data class GameState(
                                                 mutableListOf(-1,-1,-1),
                                                 mutableListOf(-1,-1,-1)),
     val winnerFound:Int=-1,
-    val prevRecord:Boolean=false
+    val prevRecord:Boolean=true
 )
 
+@HiltViewModel
 class TicTacToeViewModel @Inject constructor(private val repository: CurrScoreRepository):ViewModel() {
     private val _gameState: MutableStateFlow<GameState> = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState
     private val currScore: Flow<CurrScore> = repository.currScore()
     init {
         viewModelScope.launch {
-            prevRecordExists()
+            val count = repository.prevRecordCount()
+            _gameState.update {
+                it.copy(
+                    prevRecord = count > 0
+                )
+            }
+//            Log.d("test3", gameState.value.prevRecord.toString())
+            if (gameState.value.prevRecord) {
+                _gameState.update {
+                    it.copy(
+                        prevRecord = count > 0,
+                        direction = -1
+                    )
+                }
+            }
             Log.d("Test",repository.prevRecordCount().toString())
             if (gameState.value.prevRecord) {
                 currScore.collect {
-                    if (it != null) {
-                        _gameState.update { temp ->
-                            temp.copy(
-                                name1 = it.name1,
-                                name2 = it.name2,
-                                matchesWon1 = it.matchWon1,
-                                matchesWon2 = it.matchWon2,
-                                draw = it.draw
-                            )
-                        }
-                    }
-                    else {
-                        _gameState.update { temp ->
-                            temp.copy(
-                                prevRecord = false
-                            )
-                        }
+                    _gameState.update { temp ->
+                        temp.copy(
+                            name1 = it.name1,
+                            name2 = it.name2,
+                            matchesWon1 = it.matchWon1,
+                            matchesWon2 = it.matchWon2,
+                            draw = it.draw
+                        )
                     }
                 }
             }
@@ -329,24 +336,4 @@ class TicTacToeViewModel @Inject constructor(private val repository: CurrScoreRe
         }
     }
 
-    private fun prevRecordExists() {
-        viewModelScope.launch(Dispatchers.Default) {
-//            Log.d("test",repository.prevRecordCount().toString())
-            val count = repository.prevRecordCount()
-            _gameState.update {
-                it.copy(
-                    prevRecord = count > 0
-                )
-            }
-//            Log.d("test3", gameState.value.prevRecord.toString())
-            if (gameState.value.prevRecord) {
-                _gameState.update {
-                    it.copy(
-                        prevRecord = count > 0,
-                        direction = -1
-                    )
-                }
-            }
-        }
-    }
 }

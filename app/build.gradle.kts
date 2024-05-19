@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.tictactoe"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.tictactoe"
@@ -19,7 +19,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.example.tictactoe.HiltDIRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -83,7 +83,7 @@ dependencies {
 
     implementation("com.google.dagger:hilt-android:2.49")
     kapt("com.google.dagger:hilt-compiler:2.49")
-
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     // For instrumentation tests
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.49")
     kaptAndroidTest("com.google.dagger:hilt-compiler:2.49")
@@ -91,5 +91,8 @@ dependencies {
     // For local unit tests
     testImplementation("com.google.dagger:hilt-android-testing:2.49")
     kaptTest("com.google.dagger:hilt-compiler:2.49")
+
+    // hilt testing
+    kaptTest("com.google.dagger:hilt-android-compiler:2.44")
 
 }

@@ -2,6 +2,7 @@ package com.example.tictactoe.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +57,8 @@ import com.example.tictactoe.ui.theme.DeepOrange50100
 import com.example.tictactoe.ui.theme.DeepOrange50200
 import com.example.tictactoe.ui.theme.DeepOrange50300
 import com.example.tictactoe.ui.theme.DeepOrange50400
+import com.example.tictactoe.ui.theme.DeepOrange50900
+import com.example.tictactoe.ui.theme.Pink40
 
 //@Preview(showSystemUi = true, showBackground = true)
 @Composable
@@ -210,6 +213,7 @@ fun FixedGrid(
                         modifier = Modifier
                             .background(DeepOrange50200)
                             .weight(1f)
+                            .border(width = 4.dp, color = Pink40)
                     ){
                         Text(
                             text = "${gameState.name1}:${gameState.matchesWon1}",
@@ -224,6 +228,7 @@ fun FixedGrid(
                         modifier = Modifier
                             .background(DeepOrange50300)
                             .weight(1f)
+                            .border(width = 4.dp, color = Pink40)
                             .padding(
                                 start = 10.dp,
                                 end = 10.dp
@@ -240,8 +245,9 @@ fun FixedGrid(
                     Spacer(modifier = Modifier.width(10.dp))
                     Box(
                         modifier = Modifier
-                            .background(DeepOrange50400)
+                            .background(DeepOrange50900)
                             .weight(1f)
+                            .border(width = 4.dp, color = Pink40)
                     ){
                         Text(
                             text = "${gameState.name2}:${gameState.matchesWon2}",

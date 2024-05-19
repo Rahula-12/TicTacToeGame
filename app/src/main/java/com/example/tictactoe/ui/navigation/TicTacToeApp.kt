@@ -31,7 +31,7 @@ fun TicTacToeApp(viewModel: TicTacToeViewModel) {
             GameScreen(
                 viewModel = viewModel,
                 onBackButtonClick = {
-                    navController.navigateUp()
+                    navController.popBackStack()
                 }
             )
         }

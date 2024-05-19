@@ -1,5 +1,6 @@
 package com.example.tictactoe.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,15 +27,19 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -44,6 +49,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import com.example.tictactoe.R
+import com.example.tictactoe.ui.theme.Brown50600
 import com.example.tictactoe.ui.viewmodel.TicTacToeViewModel
 import com.example.tictactoe.ui.theme.DeepOrange50
 import com.example.tictactoe.ui.theme.DeepOrange50200
@@ -51,9 +57,12 @@ import com.example.tictactoe.ui.theme.DeepOrange50300
 import com.example.tictactoe.ui.theme.DeepOrange50700
 import com.example.tictactoe.ui.theme.DeepOrange50900
 import com.example.tictactoe.ui.theme.Orange50400
+import com.example.tictactoe.ui.theme.Pink40
 import com.example.tictactoe.ui.theme.Red50100
 import com.example.tictactoe.ui.theme.Red50200
 import com.example.tictactoe.ui.theme.Red50600
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +72,14 @@ fun HomeScreen(
     onNextClick:()->Unit={}
 ){
     val gameState=viewModel.gameState.collectAsState().value
+    val tempCheck= rememberSaveable {
+        mutableStateOf(true)
+    }
+    val context= LocalContext.current
+    if(!gameState.prevRecord && tempCheck.value){
+        Toast.makeText(context,"No previous matches found.",Toast.LENGTH_SHORT).show()
+        tempCheck.value=false
+    }
     if(gameState.emptyName) {
         ShowAlert({ viewModel.showAlert(0) },0)
     }
@@ -112,7 +129,7 @@ fun HomeScreen(
                             .padding(
                                 top = 80.dp,
                                 start = 5.dp,
-                                end=5.dp
+                                end = 5.dp
                             )
                             .fillMaxWidth()
                             .horizontalScroll(rememberScrollState()),
@@ -126,10 +143,13 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .fillMaxWidth(0.25f)
                                     .padding(
-                                       // top=10.dp,
+                                        // top=10.dp,
                                         start = 5.dp
-                                    ).background(DeepOrange50200)
-                                    .weight(1f)
+                                    )
+                                    .background(DeepOrange50200)
+                                    .border(width = 4.dp, color = Brown50600)
+                                    .padding(4.dp)
+                                    .weight(1.2f)
                             )
                             OutlinedTextField(
                                 value = name1,
@@ -138,7 +158,7 @@ fun HomeScreen(
                                 },
                                 modifier = Modifier
                                     .weight(2.5f)
-                                    .border(width = 0.dp, color = Color.Transparent)
+                                    .border(width = 4.dp, color = Pink40)
                                     .padding(
                                         start = 5.dp
                                     )
@@ -164,7 +184,7 @@ fun HomeScreen(
                             .padding(
                                 top = 70.dp,
                                 start = 5.dp,
-                                end=5.dp
+                                end = 5.dp
                             )
                             .fillMaxWidth()
                             .horizontalScroll(rememberScrollState()),
@@ -175,11 +195,17 @@ fun HomeScreen(
                                 fontFamily = FontFamily(Font(R.font.kalam_bold)),
                                 fontSize = TextUnit(30f,type=TextUnitType.Sp),
                                 color= DeepOrange50200,
-                                modifier = Modifier.background(DeepOrange50900).fillMaxWidth(0.25f).padding(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.25f)
+                                    .padding(
                                         // top=10.dp,
                                         start = 5.dp,
-                                         end=5.dp
-                            ).weight(1f)
+                                        //end=5.dp
+                                    )
+                                    .background(DeepOrange50900)
+                                    .border(width = 4.dp, color = Brown50600)
+                                    .padding(4.dp)
+                                    .weight(1.2f)
                             )
                             OutlinedTextField(
                                 value = name2,
@@ -188,10 +214,11 @@ fun HomeScreen(
                                 },
                                 modifier = Modifier
                                     .weight(2.5f)
-                                    .border(width = 0.dp, color = Color.Transparent)
+                                    .border(width = 4.dp, color = Pink40)
                                     .padding(
                                         start = 5.dp
-                                    ).background(color = DeepOrange50200)
+                                    )
+                                    .background(color = DeepOrange50200)
                                     ,
                                 placeholder = {
                                     Text(
@@ -255,11 +282,12 @@ fun HomeScreen(
                 Box(modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()){
+                    val context= LocalContext.current
                     Button(
                         onClick = {
-                            name1=""
-                            name2=""
-                            onNextClick()
+                                name1 = ""
+                                name2 = ""
+                                onNextClick()
                         },
                         modifier= Modifier
                             .padding(
