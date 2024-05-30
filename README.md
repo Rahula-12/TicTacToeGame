@@ -17,6 +17,8 @@ A simple and fun TicTacToe game for Android, developed using Kotlin with Android
 
 Welcome to the TicTacToe Android game! This is a straightforward implementation of the classic TicTacToe game where two players take turns marking spaces in a 3×3 grid. The objective is to be the first to place three of your marks in a row (horizontally, vertically, or diagonally).
 
+To run the apk directly on device, use this [link](https://github.com/Rahula-12/TicTacToeGame/releases/download/latest/TicTacToe.apk)
+
 ## Features
 
 - Simple and intuitive user interface
