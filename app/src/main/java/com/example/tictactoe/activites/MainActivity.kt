@@ -1,4 +1,4 @@
-package com.example.tictactoe
+package com.example.tictactoe.activites
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,6 +11,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tictactoe.ui.navigation.TicTacToeApp
 import com.example.tictactoe.ui.viewmodel.TicTacToeViewModel
 import com.example.tictactoe.ui.theme.TicTacToeTheme
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -19,6 +20,9 @@ class MainActivity : ComponentActivity() {
 
 //    @Inject
 //    lateinit var viewModel: TicTacToeViewModel
+
+    @Inject
+    lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +34,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    TicTacToeApp(viewModel)
+                    TicTacToeApp(
+                        viewModel,
+                        logOut = {
+                            finish()
+                            googleSignInClient.signOut()
+                        }
+                    )
                 }
             }
         }

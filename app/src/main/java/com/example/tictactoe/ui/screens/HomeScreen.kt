@@ -1,6 +1,14 @@
 package com.example.tictactoe.ui.screens
 
 import android.widget.Toast
+import androidx.compose.material.icons.filled.ArrowBack
+import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -64,12 +72,14 @@ import com.example.tictactoe.ui.theme.Red50600
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: TicTacToeViewModel,
     modifier:Modifier=Modifier,
-    onNextClick:()->Unit={}
+    onNextClick:()->Unit={},
+    logOut:()->Unit={}
 ){
     val gameState=viewModel.gameState.collectAsState().value
     val tempCheck= rememberSaveable {
@@ -86,6 +96,44 @@ fun HomeScreen(
     if(gameState.sameName) {
         ShowAlert({ viewModel.showAlert(1) },1)
     }
+    Scaffold(
+            topBar = {
+                    TopAppBar(
+                        title = {
+                                Text(
+                                    text="Tic Tac Toe",
+                                    textAlign = TextAlign.Center,
+                                    fontFamily = FontFamily(
+                                        Font(R.font.kalam_bold,
+                                        FontWeight.Bold
+                                    )
+                                    ),
+                                    fontSize = TextUnit(50f, TextUnitType.Sp),
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+    //                                    .background(DeepOrange50200)
+                                    color = Brown50600
+                                )
+                        },
+                        navigationIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "back",
+                                modifier = Modifier
+                                    .clickable {
+                                        FirebaseAuth.getInstance().signOut()
+                                        logOut()
+                                    }
+                                    .size(40.dp)
+    //                                .background(DeepOrange50200)
+                                    .fillMaxSize(),
+                                tint = Brown50600
+                            )
+                        },
+                        colors = TopAppBarDefaults.smallTopAppBarColors(DeepOrange50300)
+                    )
+            }
+        ){it->
         Box(
             modifier = modifier.fillMaxSize()
         ){
@@ -105,18 +153,6 @@ fun HomeScreen(
                     .fillMaxHeight()
                     .verticalScroll(rememberScrollState())
             ) {
-                    Text(
-                        text = "Tic Tac Toe",
-                        textAlign = TextAlign.Center,
-                        modifier= Modifier
-                            .padding(
-                                top = 50.dp
-                            )
-                            .fillMaxWidth(),
-                        fontFamily = FontFamily(Font(R.font.kalam_bold,FontWeight.Bold)),
-                        fontSize= TextUnit(55f,type= TextUnitType.Sp),
-                        color = DeepOrange50
-                    )
                 var name1 by rememberSaveable {
                     mutableStateOf("")
                 }
@@ -315,6 +351,7 @@ fun HomeScreen(
                     }
                 }
             }
+        }
         }
 }
 

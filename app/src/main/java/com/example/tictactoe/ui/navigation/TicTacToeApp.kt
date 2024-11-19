@@ -12,7 +12,7 @@ enum class Screen{
     HomeScreen,GameScreen
 }
 @Composable
-fun TicTacToeApp(viewModel: TicTacToeViewModel) {
+fun TicTacToeApp(viewModel: TicTacToeViewModel,logOut:()->Unit={}) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -24,6 +24,7 @@ fun TicTacToeApp(viewModel: TicTacToeViewModel) {
 //                    viewModel.reset(0)
                     navController.navigate(Screen.GameScreen.name)
                 },
+                logOut=logOut,
                 viewModel = viewModel
             )
         }
