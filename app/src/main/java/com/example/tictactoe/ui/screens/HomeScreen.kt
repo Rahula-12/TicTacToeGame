@@ -117,7 +117,7 @@ fun HomeScreen(
                         },
                         navigationIcon = {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBack,
+                                painter = painterResource(R.drawable.baseline_logout_24),
                                 contentDescription = "back",
                                 modifier = Modifier
                                     .clickable {

@@ -7,17 +7,28 @@ import androidx.navigation.compose.rememberNavController
 import com.example.tictactoe.ui.viewmodel.TicTacToeViewModel
 import com.example.tictactoe.ui.screens.GameScreen
 import com.example.tictactoe.ui.screens.HomeScreen
+import com.example.tictactoe.ui.screens.ModesScreen
 
 enum class Screen{
-    HomeScreen,GameScreen
+    ModesScreen,HomeScreen,GameScreen
 }
 @Composable
 fun TicTacToeApp(viewModel: TicTacToeViewModel,logOut:()->Unit={}) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = Screen.HomeScreen.name
+        startDestination = Screen.ModesScreen.name
     ){
+        composable(Screen.ModesScreen.name) {
+            ModesScreen(
+                offlineModeSelected = {
+                    navController.navigate(Screen.HomeScreen.name)
+                },
+                onBackPressed = {
+                    navController.popBackStack()
+                }
+            )
+        }
         composable(Screen.HomeScreen.name){
             HomeScreen(
                 onNextClick = {
