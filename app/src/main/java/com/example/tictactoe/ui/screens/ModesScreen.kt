@@ -49,6 +49,7 @@ fun ModesScreen(
     onlineModeSelected:()->Unit={},
     onBackPressed:()->Unit={}
 ) {
+//    FirebaseFirestore.getInstance().collection("users")
     Scaffold(
         topBar = {
             TopAppBar(

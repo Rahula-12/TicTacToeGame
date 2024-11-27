@@ -71,6 +71,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth:23.1.0")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("androidx.compose.ui:ui-text-android:1.7.5")
+    implementation("com.google.firebase:firebase-firestore:25.1.1")
     //  implementation("androidx.media3:media3-common-ktx:1.4.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -104,4 +105,5 @@ dependencies {
     kaptTest("com.google.dagger:hilt-android-compiler:2.44")
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
 
+   implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
 }

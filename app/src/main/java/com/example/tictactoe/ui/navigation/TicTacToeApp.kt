@@ -8,9 +8,11 @@ import com.example.tictactoe.ui.viewmodel.TicTacToeViewModel
 import com.example.tictactoe.ui.screens.GameScreen
 import com.example.tictactoe.ui.screens.HomeScreen
 import com.example.tictactoe.ui.screens.ModesScreen
+import com.example.tictactoe.ui.screens.SelectPlayerScreen
+import com.google.firebase.auth.FirebaseAuth
 
 enum class Screen{
-    ModesScreen,HomeScreen,GameScreen
+    ModesScreen,HomeScreen,GameScreen,SelectPlayerScreen
 }
 @Composable
 fun TicTacToeApp(viewModel: TicTacToeViewModel,logOut:()->Unit={}) {
@@ -26,7 +28,16 @@ fun TicTacToeApp(viewModel: TicTacToeViewModel,logOut:()->Unit={}) {
                 },
                 onBackPressed = {
                     navController.popBackStack()
+                },
+                onlineModeSelected = {
+                    navController.navigate(Screen.SelectPlayerScreen.name)
                 }
+            )
+        }
+        composable(Screen.SelectPlayerScreen.name){
+            SelectPlayerScreen(
+                photoUri = FirebaseAuth.getInstance().currentUser?.photoUrl,
+                currentUserEmail = FirebaseAuth.getInstance().currentUser?.email?:""
             )
         }
         composable(Screen.HomeScreen.name){

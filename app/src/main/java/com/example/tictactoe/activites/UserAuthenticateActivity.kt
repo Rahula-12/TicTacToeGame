@@ -19,6 +19,7 @@ import com.example.tictactoe.R
 import com.example.tictactoe.ui.navigation.TicTacToeApp
 import com.example.tictactoe.ui.screens.AuthenticateScreen
 import com.example.tictactoe.ui.theme.TicTacToeTheme
+import com.example.tictactoe.ui.viewmodel.AuthViewModel
 import com.example.tictactoe.ui.viewmodel.TicTacToeViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -34,7 +35,9 @@ class UserAuthenticateActivity : ComponentActivity() {
     @Inject
     lateinit var mGoogleSignInClient: GoogleSignInClient
 
-    lateinit var firebaseAuth:FirebaseAuth
+    private lateinit var firebaseAuth:FirebaseAuth
+
+    private lateinit var authViewModel:AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +70,7 @@ class UserAuthenticateActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                     authViewModel= hiltViewModel()
                     AuthenticateScreen(
                         register ={email,password->
                             firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -76,6 +80,7 @@ class UserAuthenticateActivity : ComponentActivity() {
                                         "Registration Successful",
                                         Toast.LENGTH_SHORT
                                     ).show()
+                                    authViewModel.register()
                                     val intent = Intent(this, MainActivity::class.java)
                                     this.startActivity(intent)
                                 }
@@ -130,6 +135,7 @@ class UserAuthenticateActivity : ComponentActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
                     val intent = Intent(this, MainActivity::class.java)
+                    authViewModel.register()
                     startActivity(intent)
                     finish()
                 } else {
