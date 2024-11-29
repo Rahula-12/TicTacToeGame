@@ -31,9 +31,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,10 +46,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -70,6 +76,8 @@ import com.example.tictactoe.ui.theme.PurpleGrey40
 import com.example.tictactoe.ui.theme.Red50600
 import com.example.tictactoe.ui.viewmodel.PlayersViewModel
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Preview
@@ -77,7 +85,8 @@ import com.google.firebase.auth.FirebaseAuth
 fun SelectPlayerScreen(
     modifier: Modifier = Modifier,
     photoUri: Uri? = null,
-    currentUserEmail: String = "rahul@arora.com"
+    currentUserEmail: String = "rahul@arora.com",
+    moveToGameScreen:()->Unit={}
 ) {
     val viewModel:PlayersViewModel = hiltViewModel()
     val users=viewModel.playersList.collectAsStateWithLifecycle()
@@ -100,12 +109,22 @@ fun SelectPlayerScreen(
             }
         }
     }
-
+    val context= LocalContext.current
     if(invited.value!="") {
-        InvitedDialog(
-            inviteSender = invited.value,
-            declineInvite = { viewModel.declineInvite() }) {
-            viewModel.acceptInvite(invited.value)
+        if(invited.value=="Accepted Invite") {
+            moveToGameScreen()
+            Toast.makeText(context,"Invite was accepted.",Toast.LENGTH_SHORT).show()
+        }
+        else if(invited.value=="Declined Invite") {
+            Toast.makeText(context,"Invite was declined.",Toast.LENGTH_SHORT).show()
+        }
+        else {
+            InvitedDialog(
+                inviteSender = invited.value,
+                declineInvite = { viewModel.declineInvite() }) {
+                moveToGameScreen()
+                viewModel.acceptInvite(invited.value)
+            }
         }
     }
 
@@ -199,7 +218,10 @@ fun SelectPlayerScreen(
                 Spacer(modifier = modifier.height(30.dp))
                 CurrentStatusRow()
                 Divider()
-                UserAndMatchesPlayed(usersAndMatches = playerList)
+                UserAndMatchesPlayed(
+                    usersAndMatches = playerList,
+                    invited=invited.value
+                )
             }
         }
     }
@@ -212,87 +234,91 @@ fun CurrentStatusRow(
     draw: Int = 0,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
-        CurrentStatus(
-            matches = won,
-            status = "Won",
-            modifier = modifier.weight(1f),
-            backgroundColor = DeepOrange50100,
-            headingTextColor = Pink40,
-            statusTextColor = Red50600
-        )
-        CurrentStatus(
-            matches = lost,
-            status = "Lost",
-            modifier = modifier.weight(1f),
-            backgroundColor = DeepOrange50300,
-            headingTextColor = DeepOrange50100,
-            statusTextColor = Brown50600
-        )
-        CurrentStatus(
-            matches = draw,
-            status = "Draw",
-            modifier = modifier.weight(1f),
-            backgroundColor = Brown50400,
-            headingTextColor = DeepOrange50200,
-            statusTextColor = Pink80
-        )
-    }
+//    Row(
+//        modifier = modifier
+//            .fillMaxWidth()
+//            .wrapContentHeight()
+//    ) {
+//        CurrentStatus(
+//            matches = won,
+//            status = "Won",
+//            modifier = modifier.weight(1f),
+//            backgroundColor = DeepOrange50100,
+//            headingTextColor = Pink40,
+//            statusTextColor = Red50600
+//        )
+//        CurrentStatus(
+//            matches = lost,
+//            status = "Lost",
+//            modifier = modifier.weight(1f),
+//            backgroundColor = DeepOrange50300,
+//            headingTextColor = DeepOrange50100,
+//            statusTextColor = Brown50600
+//        )
+//        CurrentStatus(
+//            matches = draw,
+//            status = "Draw",
+//            modifier = modifier.weight(1f),
+//            backgroundColor = Brown50400,
+//            headingTextColor = DeepOrange50200,
+//            statusTextColor = Pink80
+//        )
+//    }
 }
 
-
-@Composable
-fun CurrentStatus(
-    matches: Int = 0,
-    status: String = "Won",
-    backgroundColor: Color = Color.Cyan,
-    headingTextColor: Color = Color.Blue,
-    statusTextColor: Color = Color.Yellow,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .background(backgroundColor)
-            .padding(5.dp)
-    ) {
-        Text(
-            text = status,
-            color = headingTextColor,
-            fontFamily = FontFamily(
-                Font(
-                    R.font.kalam_bold,
-                    FontWeight.Bold
-                )
-            ),
-            fontSize = TextUnit(30f, TextUnitType.Sp)
-        )
-        Text(
-            text = matches.toString(),
-            color = statusTextColor,
-            fontFamily = FontFamily(
-                Font(
-                    R.font.kalam_bold,
-                    FontWeight.Bold
-                )
-            ),
-            fontSize = TextUnit(25f, TextUnitType.Sp)
-        )
-    }
-}
+//@Preview
+//@Composable
+//fun CurrentStatus(
+//    modifier: Modifier = Modifier,
+//    matches: Int = 0,
+//    status: String = "Won",
+//    backgroundColor: Color = Color.Cyan,
+//    headingTextColor: Color = Color.Blue,
+//    statusTextColor: Color = Color.Yellow
+//) {
+//    Column(
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        modifier = modifier
+//            .background(backgroundColor)
+//            .padding(5.dp)
+//    ) {
+//        Text(
+//            text = status,
+//            color = headingTextColor,
+//            fontFamily = FontFamily(
+//                Font(
+//                    R.font.kalam_bold,
+//                    FontWeight.Bold
+//                )
+//            ),
+//            fontSize = TextUnit(30f, TextUnitType.Sp)
+//        )
+//        Text(
+//            text = matches.toString(),
+//            color = statusTextColor,
+//            fontFamily = FontFamily(
+//                Font(
+//                    R.font.kalam_bold,
+//                    FontWeight.Bold
+//                )
+//            ),
+//            fontSize = TextUnit(25f, TextUnitType.Sp)
+//        )
+//    }
+//}
 
 @Composable
 fun UserAndMatchesPlayed(
     usersAndMatches: Map<String, Int> = mapOf("abc@abc.com" to 4, "abc2@abc.com" to 3),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    invited:String
 ) {
     val viewModel:PlayersViewModel = hiltViewModel()
     val showDialog=rememberSaveable {
         mutableStateOf(false)
+    }
+    if(invited=="Declined Invite" || invited=="Accepted Invite") {
+        showDialog.value=false
     }
     var index= rememberSaveable {
         mutableIntStateOf(-1)
@@ -316,7 +342,7 @@ fun UserAndMatchesPlayed(
             Text(
                 text = "User",
                 modifier = modifier
-                    .weight(3f)
+                    .weight(2f)
                     .background(DeepOrange50200),
                 textAlign = TextAlign.Center,
                 fontFamily = FontFamily(
@@ -362,7 +388,7 @@ fun UserAndMatchesPlayed(
                     Text(
                         text = list[it][0].toString(),
                         modifier = modifier
-                            .weight(3f)
+                            .weight(2f)
                             .background(DeepOrange50),
                         textAlign = TextAlign.Center,
                         fontFamily = FontFamily(
@@ -404,7 +430,15 @@ fun SelectPlayerDialog(
     list:List<List<Any>>, index:Int,
     sendInvite:()->Unit
 ) {
-        val context=LocalContext.current
+    val showTimer= rememberSaveable {
+        mutableStateOf(false)
+    }
+    if(showTimer.value) {
+        TimerDialog(
+            showTimer,
+            showDialog
+        )
+    }
         AlertDialog(
             dismissButton={
                 TextButton(onClick = {
@@ -424,8 +458,9 @@ fun SelectPlayerDialog(
             confirmButton = {
                 TextButton(onClick = {
                    // Toast.makeText(context,"Wait for Confirmation",Toast.LENGTH_SHORT).show()
-                    showDialog.value=false
                     sendInvite()
+                    showTimer.value=true
+//                    showDialog.value=false
                 }) {
                     Text(
                         text = "Yes",
@@ -457,12 +492,81 @@ fun SelectPlayerDialog(
 }
 
 @Composable
+fun TimerDialog(
+    showTimer:MutableState<Boolean> = mutableStateOf(true),
+    showDialog: MutableState<Boolean>
+) {
+    DisposableEffect(key1 = true) {
+        onDispose {
+            showDialog.value=false
+        }
+    }
+    val timer= rememberSaveable {
+        mutableStateOf(10)
+    }
+    LaunchedEffect(true) {
+        while (timer.value>0) {
+            timer.value-=1
+            delay(1000)
+        }
+        if(timer.value==0) {
+            showTimer.value=false
+        }
+    }
+    AlertDialog(
+        dismissButton={
+        },
+        onDismissRequest = {
+
+        },
+        confirmButton = {
+
+        },
+        title={
+
+        },
+        text = {
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle()){
+                        append("Your invite should be accepted in \n\n")
+                    }
+                    withStyle(style = SpanStyle(
+                        fontSize = TextUnit(30f, type = TextUnitType.Sp)
+                    )){
+                        append("${timer.value} s")
+                    }
+                },
+                textAlign = TextAlign.Center,
+                fontFamily = FontFamily(Font(R.font.kalam_bold)),
+                fontSize = TextUnit(20f, type = TextUnitType.Sp),
+                color = Color.DarkGray
+            )
+        },
+        containerColor = DeepOrange50300
+    )
+}
+
+@Composable
 fun InvitedDialog(
     inviteSender:String="",
     declineInvite:()->Unit,
     acceptInvite:()->Unit
 ) {
+    val time= rememberSaveable {
+        mutableStateOf(10)
+    }
     val context=LocalContext.current
+    LaunchedEffect(key1 = true) {
+        while(time.value>0) {
+            time.value-=1
+            delay(1000)
+        }
+        if(time.value==0) {
+            Toast.makeText(context,"Invitation Declined due to no response",Toast.LENGTH_SHORT).show()
+            declineInvite()
+        }
+    }
     AlertDialog(
         dismissButton={
             TextButton(onClick = {
@@ -512,4 +616,14 @@ fun InvitedDialog(
         containerColor = DeepOrange50300
     )
 }
+
+//Creating a coroutine with async or launch during composition
+//is often incorrect - this means that a coroutine will be
+//created even if the composition fails / is rolled back, and
+//it also means that multiple coroutines could end up mutating the
+//same state, causing inconsistent results. Instead,
+//use LaunchedEffect and create coroutines inside the suspending
+//block. The block will only run after a successful composition,
+//and will cancel existing coroutines when key changes,
+//allowing correct cleanup.
 

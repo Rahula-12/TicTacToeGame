@@ -71,6 +71,8 @@ class PlayersRepository @Inject constructor() {
     }
 
     fun declineInvite() {
+        usersRef.document(invited.value).update("invitedBy","Declined Invite")
+        usersRef.document(invited.value).update("invitedBy","")
         val task=usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("invitedBy","")
         val coroutineScope= CoroutineScope(Dispatchers.IO+ SupervisorJob())
         coroutineScope.launch {
@@ -84,6 +86,8 @@ class PlayersRepository @Inject constructor() {
     }
 
     fun acceptInvite(senderEmail:String) {
+        usersRef.document(invited.value).update("invitedBy","Accepted Invite")
+        usersRef.document(invited.value).update("invitedBy","")
         usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("invitedBy","")
         usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("playing",true)
         usersRef.document(senderEmail).update("playing",true)
