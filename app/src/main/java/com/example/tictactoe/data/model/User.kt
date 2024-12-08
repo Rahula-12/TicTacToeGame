@@ -7,5 +7,8 @@ data class User(
     var matchesDraw:Int=0,
     var isPlaying:Boolean=false,
     var totalMatches:MutableMap<String,Int> = mutableMapOf(),
-    var invitedBy:String=""
+    var invitedBy:String="",
+    var isOnline:Boolean=false,
+    var matchId:String="",
+    var acceptedBy:String=""
 )

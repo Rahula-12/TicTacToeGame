@@ -2,7 +2,6 @@ package com.example.tictactoe.data.repository
 
 import android.util.Log
 import com.example.tictactoe.data.model.User
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,6 +20,8 @@ class PlayersRepository @Inject constructor() {
     private val usersRef: CollectionReference = FirebaseFirestore.getInstance().collection("users")
     private val _userList:MutableStateFlow<List<User>> = MutableStateFlow(listOf())
     private val _invited:MutableStateFlow<String> = MutableStateFlow("")
+    private val _matchId:MutableStateFlow<String> = MutableStateFlow("")
+    val matchId:StateFlow<String> = _matchId
     val invited:StateFlow<String> = _invited
     val userList: StateFlow<List<User>> = _userList.asStateFlow()
     init {
@@ -28,8 +29,10 @@ class PlayersRepository @Inject constructor() {
             if(exception!=null) return@addSnapshotListener
             val list: MutableList<User> = mutableListOf()
             for (document in snapshot!!.documents) {
+                if(document["isOnline"]==false) continue
                 if(document["emailId"]==FirebaseAuth.getInstance().currentUser?.email) {
                         _invited.value=document["invitedBy"].toString()
+                        _matchId.value=document["matchId"].toString()
                 }
 //                println(document.get("emailId").toString()+" "+currentUserEmail+" "+(document.get("emailId").toString()==currentUserEmail))
                 val ans=document.get("playing")==false
@@ -71,8 +74,8 @@ class PlayersRepository @Inject constructor() {
     }
 
     fun declineInvite() {
-        usersRef.document(invited.value).update("invitedBy","Declined Invite")
-        usersRef.document(invited.value).update("invitedBy","")
+//        usersRef.document(invited.value).update("invitedBy","Declined Invite")
+//        usersRef.document(invited.value).update("invitedBy","")
         val task=usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("invitedBy","")
         val coroutineScope= CoroutineScope(Dispatchers.IO+ SupervisorJob())
         coroutineScope.launch {
@@ -86,15 +89,41 @@ class PlayersRepository @Inject constructor() {
     }
 
     fun acceptInvite(senderEmail:String) {
-        usersRef.document(invited.value).update("invitedBy","Accepted Invite")
-        usersRef.document(invited.value).update("invitedBy","")
-        usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("invitedBy","")
-        usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("playing",true)
-        usersRef.document(senderEmail).update("playing",true)
+        val coroutineScope= CoroutineScope(Dispatchers.IO+ SupervisorJob())
+        coroutineScope.launch {
+            usersRef.document(senderEmail).update("invitedBy", "Accepted Invite")
+            usersRef.document(senderEmail).update("invitedBy", "")
+            usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!)
+                .update("invitedBy", "")
+            usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!)
+                .update("playing", true)
+            usersRef.document(senderEmail).update("playing", true)
+            usersRef.document(senderEmail).update("matchId",senderEmail+"_"+FirebaseAuth.getInstance().currentUser!!.email!!)
+            usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("matchId",senderEmail+"_"+FirebaseAuth.getInstance().currentUser!!.email!!)
+        }
     }
 
     fun sendInvite(selectedPlayer:String) {
-        usersRef.document(selectedPlayer).update("invitedBy",FirebaseAuth.getInstance().currentUser!!.email)
+        val coroutineScope= CoroutineScope(Dispatchers.IO+ SupervisorJob())
+        coroutineScope.launch {
+            usersRef.document(selectedPlayer).update("invitedBy",FirebaseAuth.getInstance().currentUser!!.email)
+        }
+    }
+
+    fun markOnline() {
+        val coroutineScope= CoroutineScope(Dispatchers.IO+ SupervisorJob())
+        coroutineScope.launch {
+            usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!)
+                .update("isOnline", true)
+        }
+    }
+
+    fun unmarkOnline() {
+        val coroutineScope= CoroutineScope(Dispatchers.IO+ SupervisorJob())
+        coroutineScope.launch {
+            usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!)
+                .update("isOnline", false)
+        }
     }
 
 }

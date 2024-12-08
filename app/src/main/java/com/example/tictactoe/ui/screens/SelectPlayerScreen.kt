@@ -80,17 +80,26 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
-@Preview
 @Composable
 fun SelectPlayerScreen(
     modifier: Modifier = Modifier,
     photoUri: Uri? = null,
     currentUserEmail: String = "rahul@arora.com",
-    moveToGameScreen:()->Unit={}
+    moveToGameScreen:(matchId:String)->Unit={}
 ) {
     val viewModel:PlayersViewModel = hiltViewModel()
+    DisposableEffect(key1 = true) {
+        viewModel.markOnline()
+        onDispose {
+            viewModel.unmarkOnline()
+        }
+    }
     val users=viewModel.playersList.collectAsStateWithLifecycle()
     val invited=viewModel.invited.collectAsStateWithLifecycle()
+    val matchId=viewModel.matchId.collectAsStateWithLifecycle()
+    if(matchId.value!="") {
+        moveToGameScreen(matchId.value)
+    }
 //    Log.d("users",users.value.toString())
     var currUser: User?=null
     for(user in users.value) {
@@ -112,7 +121,7 @@ fun SelectPlayerScreen(
     val context= LocalContext.current
     if(invited.value!="") {
         if(invited.value=="Accepted Invite") {
-            moveToGameScreen()
+//            moveToGameScreen()
             Toast.makeText(context,"Invite was accepted.",Toast.LENGTH_SHORT).show()
         }
         else if(invited.value=="Declined Invite") {
@@ -122,12 +131,11 @@ fun SelectPlayerScreen(
             InvitedDialog(
                 inviteSender = invited.value,
                 declineInvite = { viewModel.declineInvite() }) {
-                moveToGameScreen()
-                viewModel.acceptInvite(invited.value)
+//                moveToGameScreen()
+                viewModel.acceptInvite(invited.value,currUser?.emailId?:"")
             }
         }
     }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -616,14 +624,4 @@ fun InvitedDialog(
         containerColor = DeepOrange50300
     )
 }
-
-//Creating a coroutine with async or launch during composition
-//is often incorrect - this means that a coroutine will be
-//created even if the composition fails / is rolled back, and
-//it also means that multiple coroutines could end up mutating the
-//same state, causing inconsistent results. Instead,
-//use LaunchedEffect and create coroutines inside the suspending
-//block. The block will only run after a successful composition,
-//and will cancel existing coroutines when key changes,
-//allowing correct cleanup.
 

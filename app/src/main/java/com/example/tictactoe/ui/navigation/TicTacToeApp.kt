@@ -39,8 +39,8 @@ fun TicTacToeApp(viewModel: TicTacToeViewModel,logOut:()->Unit={}) {
             SelectPlayerScreen(
                 photoUri = FirebaseAuth.getInstance().currentUser?.photoUrl,
                 currentUserEmail = FirebaseAuth.getInstance().currentUser?.email?:"",
-                moveToGameScreen = {
-                    navController.navigate(Screen.OnlineGameScreen.name)
+                moveToGameScreen = {matchId->
+                    navController.navigate(Screen.OnlineGameScreen.name+"/$matchId")
                 }
             )
         }
@@ -62,8 +62,11 @@ fun TicTacToeApp(viewModel: TicTacToeViewModel,logOut:()->Unit={}) {
                 }
             )
         }
-        composable(Screen.OnlineGameScreen.name) {
-            OnlineGameScreen()
+        composable(Screen.OnlineGameScreen.name+"/{matchId}") {navBackStack->
+            val matchId=navBackStack.arguments?.getString("matchId")
+            matchId?.let {
+                OnlineGameScreen(matchId = it)
+            }
         }
     }
 }
