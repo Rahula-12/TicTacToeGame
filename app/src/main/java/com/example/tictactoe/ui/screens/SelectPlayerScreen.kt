@@ -97,8 +97,10 @@ fun SelectPlayerScreen(
     val users=viewModel.playersList.collectAsStateWithLifecycle()
     val invited=viewModel.invited.collectAsStateWithLifecycle()
     val matchId=viewModel.matchId.collectAsStateWithLifecycle()
-    if(matchId.value!="") {
-        moveToGameScreen(matchId.value)
+    LaunchedEffect(matchId.value) {
+        if(matchId.value!="") {
+            moveToGameScreen(matchId.value)
+        }
     }
 //    Log.d("users",users.value.toString())
     var currUser: User?=null
@@ -110,11 +112,14 @@ fun SelectPlayerScreen(
     }
     val playerList:MutableMap<String,Int> = mutableMapOf()
     currUser?.let {
-        playerList.putAll(it.totalMatches)
+//        playerList.putAll(it.totalMatches)
         for(user in users.value) {
             if(user==it) continue
             if(!it.totalMatches.contains(user.emailId)) {
                 playerList[user.emailId] = 0
+            }
+            else {
+                playerList[user.emailId]= it.totalMatches[user.emailId] as Int
             }
         }
     }
@@ -224,7 +229,11 @@ fun SelectPlayerScreen(
                     color = DeepOrange150900
                 )
                 Spacer(modifier = modifier.height(30.dp))
-                CurrentStatusRow()
+                CurrentStatusRow(
+                    won=currUser?.matchesWon?:0,
+                    lost = currUser?.matchesLost?:0,
+                    draw = currUser?.matchesDraw?:0
+                )
                 Divider()
                 UserAndMatchesPlayed(
                     usersAndMatches = playerList,
@@ -242,78 +251,78 @@ fun CurrentStatusRow(
     draw: Int = 0,
     modifier: Modifier = Modifier
 ) {
-//    Row(
-//        modifier = modifier
-//            .fillMaxWidth()
-//            .wrapContentHeight()
-//    ) {
-//        CurrentStatus(
-//            matches = won,
-//            status = "Won",
-//            modifier = modifier.weight(1f),
-//            backgroundColor = DeepOrange50100,
-//            headingTextColor = Pink40,
-//            statusTextColor = Red50600
-//        )
-//        CurrentStatus(
-//            matches = lost,
-//            status = "Lost",
-//            modifier = modifier.weight(1f),
-//            backgroundColor = DeepOrange50300,
-//            headingTextColor = DeepOrange50100,
-//            statusTextColor = Brown50600
-//        )
-//        CurrentStatus(
-//            matches = draw,
-//            status = "Draw",
-//            modifier = modifier.weight(1f),
-//            backgroundColor = Brown50400,
-//            headingTextColor = DeepOrange50200,
-//            statusTextColor = Pink80
-//        )
-//    }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        CurrentStatus(
+            matches = won,
+            status = "Won",
+            modifier = modifier.weight(1f),
+            backgroundColor = DeepOrange50100,
+            headingTextColor = Pink40,
+            statusTextColor = Red50600
+        )
+        CurrentStatus(
+            matches = lost,
+            status = "Lost",
+            modifier = modifier.weight(1f),
+            backgroundColor = DeepOrange50300,
+            headingTextColor = DeepOrange50100,
+            statusTextColor = Brown50600
+        )
+        CurrentStatus(
+            matches = draw,
+            status = "Draw",
+            modifier = modifier.weight(1f),
+            backgroundColor = Brown50400,
+            headingTextColor = DeepOrange50200,
+            statusTextColor = Pink80
+        )
+    }
 }
 
 //@Preview
-//@Composable
-//fun CurrentStatus(
-//    modifier: Modifier = Modifier,
-//    matches: Int = 0,
-//    status: String = "Won",
-//    backgroundColor: Color = Color.Cyan,
-//    headingTextColor: Color = Color.Blue,
-//    statusTextColor: Color = Color.Yellow
-//) {
-//    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        modifier = modifier
-//            .background(backgroundColor)
-//            .padding(5.dp)
-//    ) {
-//        Text(
-//            text = status,
-//            color = headingTextColor,
-//            fontFamily = FontFamily(
-//                Font(
-//                    R.font.kalam_bold,
-//                    FontWeight.Bold
-//                )
-//            ),
-//            fontSize = TextUnit(30f, TextUnitType.Sp)
-//        )
-//        Text(
-//            text = matches.toString(),
-//            color = statusTextColor,
-//            fontFamily = FontFamily(
-//                Font(
-//                    R.font.kalam_bold,
-//                    FontWeight.Bold
-//                )
-//            ),
-//            fontSize = TextUnit(25f, TextUnitType.Sp)
-//        )
-//    }
-//}
+@Composable
+fun CurrentStatus(
+    modifier: Modifier = Modifier,
+    matches: Int = 0,
+    status: String = "Won",
+    backgroundColor: Color = Color.Cyan,
+    headingTextColor: Color = Color.Blue,
+    statusTextColor: Color = Color.Yellow
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .background(backgroundColor)
+            .padding(5.dp)
+    ) {
+        Text(
+            text = status,
+            color = headingTextColor,
+            fontFamily = FontFamily(
+                Font(
+                    R.font.kalam_bold,
+                    FontWeight.Bold
+                )
+            ),
+            fontSize = TextUnit(30f, TextUnitType.Sp)
+        )
+        Text(
+            text = matches.toString(),
+            color = statusTextColor,
+            fontFamily = FontFamily(
+                Font(
+                    R.font.kalam_bold,
+                    FontWeight.Bold
+                )
+            ),
+            fontSize = TextUnit(25f, TextUnitType.Sp)
+        )
+    }
+}
 
 @Composable
 fun UserAndMatchesPlayed(

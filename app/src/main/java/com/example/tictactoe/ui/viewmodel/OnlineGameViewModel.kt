@@ -21,7 +21,7 @@ class OnlineGameViewModel @Inject constructor(
         onlineGameRepository.fetchMatchState(matchId)
     }
 
-    fun assignValue(i: Int, j: Int) {
+    fun assignValue(i: Int, j: Int,matchId: String) {
         if (matchState.value.winner == "") {
             val canTouch: Boolean = when (i) {
                 0 -> {
@@ -48,18 +48,19 @@ class OnlineGameViewModel @Inject constructor(
                 gameState[i][j] = currTurn
                 onlineGameRepository.updateMatch(
                         turn = 1 - currTurn,
-                    gameState = gameState
+                    gameState = gameState,
+                    matchId=matchId
                 )
                 val arr = validateTicTacToe(gameState)
                 val direction=arr[0]
                 val result=arr[1]
                 if (result != -1) {
                     if (result == 1) {
-                        onlineGameRepository.updateMatch(winner = matchState.value.player1Id,direction=direction)
+                        onlineGameRepository.updateMatch(winner = matchState.value.player1Id,direction=direction,matchId=matchId)
                     } else if (result == 2) {
-                        onlineGameRepository.updateMatch(winner = matchState.value.player2Id,direction=direction)
+                        onlineGameRepository.updateMatch(winner = matchState.value.player2Id,direction=direction,matchId=matchId)
                     } else {
-                        onlineGameRepository.updateMatch(winner ="Draw",direction=direction)
+                        onlineGameRepository.updateMatch(winner ="Draw",direction=direction,matchId=matchId)
                     }
                 }
             }

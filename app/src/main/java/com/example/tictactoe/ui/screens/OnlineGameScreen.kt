@@ -219,11 +219,11 @@ fun OnlineGameScreen(
                                             .clickable {
                                                 if (matchState.value.turn == 0) {
                                                     if (FirebaseAuth.getInstance().currentUser?.email == matchState.value.player1Id) {
-                                                        viewModel.assignValue(i, j)
+                                                        viewModel.assignValue(i, j,matchId)
                                                     }
                                                 } else {
                                                     if (FirebaseAuth.getInstance().currentUser?.email == matchState.value.player2Id) {
-                                                        viewModel.assignValue(i, j)
+                                                        viewModel.assignValue(i, j,matchId)
                                                     }
                                                 }
                                             }

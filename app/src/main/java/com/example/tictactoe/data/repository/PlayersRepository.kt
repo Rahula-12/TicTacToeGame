@@ -33,10 +33,10 @@ class PlayersRepository @Inject constructor() {
                 if(document["emailId"]==FirebaseAuth.getInstance().currentUser?.email) {
                         _invited.value=document["invitedBy"].toString()
                         _matchId.value=document["matchId"].toString()
+//                    continue
                 }
 //                println(document.get("emailId").toString()+" "+currentUserEmail+" "+(document.get("emailId").toString()==currentUserEmail))
-                val ans=document.get("playing")==false
-                if(ans)
+                if(document.get("playing")==false)
                  list.add(document.toObject(User::class.java)!!)
             }
             _userList.value = list
