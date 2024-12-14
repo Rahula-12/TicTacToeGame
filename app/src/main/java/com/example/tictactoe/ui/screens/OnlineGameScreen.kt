@@ -18,14 +18,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -46,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.tictactoe.R
+import com.example.tictactoe.data.model.Match
 import com.example.tictactoe.ui.board.GameBoard
 import com.example.tictactoe.ui.theme.Brown50600
 import com.example.tictactoe.ui.theme.DeepOrange50
@@ -64,7 +69,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun OnlineGameScreen(
     modifier: Modifier = Modifier,
-    matchId: String = ""
+    matchId: String = "",
+    moveBack:()->Unit={}
 ) {
     Scaffold(
         topBar = {
@@ -93,6 +99,7 @@ fun OnlineGameScreen(
                         modifier = Modifier
                             .clickable {
                                 // onBackButtonClick()
+                                moveBack()
                             }
                             .size(40.dp)
 //                                .background(DeepOrange50200)
@@ -107,17 +114,49 @@ fun OnlineGameScreen(
         val timer = rememberSaveable {
             mutableStateOf(11)
         }
+        val showDialog= rememberSaveable {
+            mutableStateOf(false)
+        }
         val viewModel: OnlineGameViewModel = hiltViewModel()
         val matchState = viewModel.matchState.collectAsStateWithLifecycle()
+        if(matchState.value.winner!="") {
+            showDialog.value=true
+        }
+        if(showDialog.value) {
+            ShowWinner(
+                showDialog,
+                winningStatement =
+                    if(matchState.value.winner==FirebaseAuth.getInstance().currentUser?.email) {
+                        "Congratulations you won 🎉"
+                    }
+                    else if(matchState.value.winner!="Draw") {
+                        "Damn! You lost 😢"
+                    }
+                    else {
+                        "Game Draw"
+                    },
+                matchState=matchState,
+                playAgain = {playing,matchId->
+                    viewModel.playAgain(playing,matchId)
+                },
+                resetMatch={viewModel.resetMatch(matchId)},
+                moveBack=moveBack,
+                removeMatch = {
+                    viewModel.removeMatch()
+                }
+            ){
+                viewModel.resetUser()
+            }
+        }
         LaunchedEffect(key1 = true) {
             withContext(Dispatchers.IO) {
                 viewModel.fetchMatchState(matchId)
             }
         }
-        LaunchedEffect(key1 = matchState.value.winner) {
-            delay(2000)
-            viewModel.removeMatch(matchId)
-        }
+//        LaunchedEffect(key1 = matchState.value.winner) {
+//            delay(2000)
+//            viewModel.removeMatch(matchId)
+//        }
 //        viewModel.fetchMatchState(matchId)
         Box(
             modifier = Modifier.fillMaxSize()
@@ -284,5 +323,96 @@ fun OnlineGameScreen(
             }
         }
     }
+}
+
+@Composable
+fun ShowWinner(
+    showDialog:MutableState<Boolean>,
+    winningStatement:String,
+    matchState: State<Match>,
+    playAgain:(Boolean,String)->Unit={_,_->},
+    resetMatch:()->Unit={},
+    moveBack:()->Unit={},
+    removeMatch:()->Unit,
+    resetUser:()->Unit
+    ) {
+//    val showTimer= rememberSaveable {
+//        mutableStateOf(false)
+//    }
+//    if(showTimer.value) {
+//        TimerDialog(
+//            showTimer,
+//            showDialog
+//        )
+//    }
+    LaunchedEffect(matchState.value.playAgain1,matchState.value.playAgain2) {
+        if(matchState.value.playAgain1!=-1 || matchState.value.playAgain2!=-1) {
+            if(matchState.value.playAgain1==1 && matchState.value.playAgain2==1) {
+                resetMatch()
+                showDialog.value=false
+            }
+            else if(matchState.value.playAgain1==0 || matchState.value.playAgain2==0) {
+                resetUser()
+//                moveBack()
+                moveBack()
+//                moveBack()
+                showDialog.value=false
+//                removeMatch()
+            }
+        }
+    }
+    AlertDialog(
+        dismissButton={
+            TextButton(onClick = {
+                //Toast.makeText(context,"Wait for Confirmation",Toast.LENGTH_SHORT).show()
+                playAgain(false,matchState.value.matchId)
+                showDialog.value=false
+            }) {
+                Text(
+                    text = "No",
+                    fontFamily = FontFamily(Font(R.font.kalam_bold)),
+                    color= Color.DarkGray
+                )
+            }
+        },
+        onDismissRequest = {
+            playAgain(false,matchState.value.matchId)
+            showDialog.value=false
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                // Toast.makeText(context,"Wait for Confirmation",Toast.LENGTH_SHORT).show()
+//                sendInvite()
+//                showTimer.value=true
+                playAgain(true,matchState.value.matchId)
+                    showDialog.value=false
+            }) {
+                Text(
+                    text = "Yes",
+                    fontFamily = FontFamily(Font(R.font.kalam_bold)),
+                    color= Color.DarkGray
+                )
+            }
+        },
+        title={
+            Text(
+                text = "Winner",
+                textAlign = TextAlign.Center,
+                fontFamily = FontFamily(Font(R.font.kalam_bold)),
+                fontSize = TextUnit(25f, type = TextUnitType.Sp),
+                color = Color.DarkGray
+            )
+        },
+        text = {
+            Text(
+                text = winningStatement,
+                textAlign = TextAlign.Center,
+                fontFamily = FontFamily(Font(R.font.kalam_bold)),
+                fontSize = TextUnit(20f, type = TextUnitType.Sp),
+                color = Color.DarkGray
+            )
+        },
+        containerColor = DeepOrange50300
+    )
 }
 

@@ -2,6 +2,7 @@ package com.example.tictactoe.data.repository
 
 import com.example.tictactoe.data.model.Match
 import com.example.tictactoe.data.model.User
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.CoroutineScope
@@ -180,11 +181,56 @@ class OnlineGameRepository @Inject constructor() {
         }
     }
 
-    fun removeMatch(matchId:String) {
+    fun resetMatch(matchId:String) {
         val coroutineScope= CoroutineScope(Dispatchers.IO)
         coroutineScope.launch {
             val match = Match(matchId = matchId, player1Id = matchId.split("_")[0], player2Id = matchId.split("_")[1])
-            val task=matchesReference.document(matchId).set(match)
+            matchesReference.document(matchId).set(match)
         }
     }
+
+    fun removeMatch() {
+        val coroutineScope= CoroutineScope(Dispatchers.IO)
+        coroutineScope.launch {
+            matchesReference.document(matchState.value.matchId).delete()
+        }
+    }
+
+    fun playingAgain(playing:Boolean,matchId: String) {
+        if(playing) {
+            if(matchState.value.player1Id==FirebaseAuth.getInstance().currentUser?.email) {
+                val coroutineScope= CoroutineScope(Dispatchers.IO)
+                coroutineScope.launch {
+                    matchesReference.document(matchId).update("playAgain1",1)
+                }
+            }
+            else {
+                val coroutineScope= CoroutineScope(Dispatchers.IO)
+                coroutineScope.launch {
+                    matchesReference.document(matchId).update("playAgain2",1)
+                }
+            }
+        }
+        else {
+            if(matchState.value.player1Id==FirebaseAuth.getInstance().currentUser?.email) {
+                val coroutineScope= CoroutineScope(Dispatchers.IO)
+                coroutineScope.launch {
+                    matchesReference.document(matchId).update("playAgain1",0)
+                }
+            }
+            else {
+                val coroutineScope= CoroutineScope(Dispatchers.IO)
+                coroutineScope.launch {
+                    matchesReference.document(matchId).update("playAgain2",0)
+                }
+            }
+        }
+    }
+
+    fun resetUser() {
+        usersReference.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("playing",false)
+        usersReference.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("matchId","")
+        usersReference.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("matchId","")
+    }
+
 }

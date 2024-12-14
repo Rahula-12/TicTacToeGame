@@ -21,6 +21,10 @@ class OnlineGameViewModel @Inject constructor(
         onlineGameRepository.fetchMatchState(matchId)
     }
 
+    fun playAgain(playing:Boolean,matchId: String) {
+        onlineGameRepository.playingAgain(playing,matchId)
+    }
+
     fun assignValue(i: Int, j: Int,matchId: String) {
         if (matchState.value.winner == "") {
             val canTouch: Boolean = when (i) {
@@ -197,8 +201,16 @@ class OnlineGameViewModel @Inject constructor(
         return arr
     }
 
-    fun removeMatch(matchId:String) {
-        onlineGameRepository.removeMatch(matchId)
+    fun resetMatch(matchId:String) {
+        onlineGameRepository.resetMatch(matchId)
+    }
+
+    fun removeMatch() {
+        onlineGameRepository.removeMatch()
+    }
+
+    fun resetUser() {
+        onlineGameRepository.resetUser()
     }
 
 }

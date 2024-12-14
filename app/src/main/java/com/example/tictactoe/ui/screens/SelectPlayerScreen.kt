@@ -92,7 +92,8 @@ fun SelectPlayerScreen(
     modifier: Modifier = Modifier,
     photoUri: Uri? = null,
     currentUserEmail: String = "rahul@arora.com",
-    moveToGameScreen:(matchId:String)->Unit={}
+    moveToGameScreen:(matchId:String)->Unit={},
+    moveBack:()->Unit={}
 ) {
     val viewModel:PlayersViewModel = hiltViewModel()
     val lifecycleObserver=
@@ -181,7 +182,7 @@ fun SelectPlayerScreen(
                         contentDescription = "back",
                         modifier = Modifier
                             .clickable {
-
+                                moveBack()
                             }
                             .size(40.dp)
                             //                                .background(DeepOrange50200)
