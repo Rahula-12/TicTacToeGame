@@ -9,5 +9,7 @@ data class Match(
     val secondRow:MutableList<Int> = mutableListOf(-1,-1,-1),
     val thirdRow:MutableList<Int> = mutableListOf(-1,-1,-1),
     val turn:Int=0,
-    val direction:Int=-1
+    val direction:Int=-1,
+//    val playAgain1:Int=-1,
+//    val playAgain2: Int=-1
 )

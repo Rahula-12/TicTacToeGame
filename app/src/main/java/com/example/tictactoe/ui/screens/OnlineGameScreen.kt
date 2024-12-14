@@ -56,21 +56,22 @@ import com.example.tictactoe.ui.theme.PurpleGrey40
 import com.example.tictactoe.ui.viewmodel.OnlineGameViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnlineGameScreen(
-    modifier: Modifier=Modifier,
-    matchId:String=""
-){
+    modifier: Modifier = Modifier,
+    matchId: String = ""
+) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text="Arena",
+                        text = "Arena",
                         textAlign = TextAlign.Center,
                         fontFamily = FontFamily(
                             Font(
@@ -103,16 +104,20 @@ fun OnlineGameScreen(
             )
         }
     ) { it ->
-        val timer= rememberSaveable {
+        val timer = rememberSaveable {
             mutableStateOf(11)
         }
-        val viewModel:OnlineGameViewModel= hiltViewModel()
+        val viewModel: OnlineGameViewModel = hiltViewModel()
+        val matchState = viewModel.matchState.collectAsStateWithLifecycle()
         LaunchedEffect(key1 = true) {
             withContext(Dispatchers.IO) {
                 viewModel.fetchMatchState(matchId)
             }
         }
-        val matchState=viewModel.matchState.collectAsStateWithLifecycle()
+        LaunchedEffect(key1 = matchState.value.winner) {
+            delay(2000)
+            viewModel.removeMatch(matchId)
+        }
 //        viewModel.fetchMatchState(matchId)
         Box(
             modifier = Modifier.fillMaxSize()
@@ -131,9 +136,9 @@ fun OnlineGameScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 Row(
-                    modifier=modifier.fillMaxWidth(),
+                    modifier = modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
-                ){
+                ) {
                     Text(
                         text = matchState.value.player1Id,
                         modifier = modifier
@@ -201,10 +206,10 @@ fun OnlineGameScreen(
                                     )
                             ) {
                                 for (j in 0..2) {
-                                    val state=when(i) {
-                                        0->matchState.value.firstRow[j]
-                                        1->matchState.value.secondRow[j]
-                                        else->matchState.value.thirdRow[j]
+                                    val state = when (i) {
+                                        0 -> matchState.value.firstRow[j]
+                                        1 -> matchState.value.secondRow[j]
+                                        else -> matchState.value.thirdRow[j]
                                     }
                                     Image(
                                         painter = painterResource(
@@ -219,11 +224,11 @@ fun OnlineGameScreen(
                                             .clickable {
                                                 if (matchState.value.turn == 0) {
                                                     if (FirebaseAuth.getInstance().currentUser?.email == matchState.value.player1Id) {
-                                                        viewModel.assignValue(i, j,matchId)
+                                                        viewModel.assignValue(i, j, matchId)
                                                     }
                                                 } else {
                                                     if (FirebaseAuth.getInstance().currentUser?.email == matchState.value.player2Id) {
-                                                        viewModel.assignValue(i, j,matchId)
+                                                        viewModel.assignValue(i, j, matchId)
                                                     }
                                                 }
                                             }
@@ -241,9 +246,9 @@ fun OnlineGameScreen(
                     }
                 }
                 Row(
-                    modifier= modifier.fillMaxWidth(),
+                    modifier = modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
-                ){
+                ) {
                     Text(
                         text = matchState.value.player2Id,
                         modifier = modifier
@@ -280,3 +285,4 @@ fun OnlineGameScreen(
         }
     }
 }
+

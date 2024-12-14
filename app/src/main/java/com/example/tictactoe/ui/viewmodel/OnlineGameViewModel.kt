@@ -197,4 +197,8 @@ class OnlineGameViewModel @Inject constructor(
         return arr
     }
 
+    fun removeMatch(matchId:String) {
+        onlineGameRepository.removeMatch(matchId)
+    }
+
 }

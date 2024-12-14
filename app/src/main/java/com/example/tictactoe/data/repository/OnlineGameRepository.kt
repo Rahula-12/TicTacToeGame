@@ -66,27 +66,30 @@ class OnlineGameRepository @Inject constructor() {
                         val matchesWon = doc.get("matchesWon") as? Long
                         val matchesWonInt = matchesWon?.toInt() ?: 0
                         usersReference.document(it).update("matchesWon", 1 + matchesWonInt)
-                        val winnerUser=doc.toObject(User::class.java)
-                        winnerUser?.let { curr->
-                            val totalMatches=curr.totalMatches
-                            if(it==senderMail) {
-                                if(!totalMatches.containsKey(invitedMail)) {
-                                    totalMatches[invitedMail] = 1
+                        val scope=CoroutineScope(Dispatchers.IO)
+                        scope.launch {
+                            val winnerUser=usersReference.document(it).get().await().toObject(User::class.java)
+                            winnerUser?.let { curr->
+                                val totalMatches=curr.totalMatches
+                                if(it==senderMail) {
+                                    if(!totalMatches.containsKey(invitedMail)) {
+                                        totalMatches[invitedMail] = 1
+                                    }
+                                    else {
+                                        totalMatches[invitedMail] = totalMatches[invitedMail]!!+1
+                                    }
                                 }
                                 else {
-                                    totalMatches[invitedMail] = totalMatches[invitedMail]!!+1
+                                    if(!totalMatches.containsKey(senderMail)) {
+                                        totalMatches[senderMail] = 1
+                                    }
+                                    else {
+                                        totalMatches[senderMail] = totalMatches[senderMail]!!+1
+                                    }
                                 }
                             }
-                            else {
-                                if(!totalMatches.containsKey(senderMail)) {
-                                    totalMatches[senderMail] = 1
-                                }
-                                else {
-                                    totalMatches[senderMail] = totalMatches[senderMail]!!+1
-                                }
-                            }
+                            usersReference.document(it).set(winnerUser!!)
                         }
-                        usersReference.document(it).set(winnerUser!!)
                     }
                     if (it == senderMail) {
                         usersReference.document(invitedMail).get().addOnSuccessListener { doc ->
@@ -174,6 +177,14 @@ class OnlineGameRepository @Inject constructor() {
             direction?.let { it ->
                 matchesReference.document(matchId).update("direction", it)
             }
+        }
+    }
+
+    fun removeMatch(matchId:String) {
+        val coroutineScope= CoroutineScope(Dispatchers.IO)
+        coroutineScope.launch {
+            val match = Match(matchId = matchId, player1Id = matchId.split("_")[0], player2Id = matchId.split("_")[1])
+            val task=matchesReference.document(matchId).set(match)
         }
     }
 }

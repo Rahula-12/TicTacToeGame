@@ -74,8 +74,8 @@ class PlayersRepository @Inject constructor() {
     }
 
     fun declineInvite() {
-//        usersRef.document(invited.value).update("invitedBy","Declined Invite")
-//        usersRef.document(invited.value).update("invitedBy","")
+        usersRef.document(invited.value).update("invitedBy","Declined Invite")
+        usersRef.document(invited.value).update("invitedBy","")
         val task=usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("invitedBy","")
         val coroutineScope= CoroutineScope(Dispatchers.IO+ SupervisorJob())
         coroutineScope.launch {

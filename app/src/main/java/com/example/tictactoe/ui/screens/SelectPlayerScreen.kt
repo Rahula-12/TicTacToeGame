@@ -58,9 +58,15 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.manager.LifecycleListener
 import com.example.tictactoe.R
 import com.example.tictactoe.data.model.User
 import com.example.tictactoe.ui.theme.Brown50400
@@ -78,6 +84,7 @@ import com.example.tictactoe.ui.viewmodel.PlayersViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
@@ -88,10 +95,17 @@ fun SelectPlayerScreen(
     moveToGameScreen:(matchId:String)->Unit={}
 ) {
     val viewModel:PlayersViewModel = hiltViewModel()
-    DisposableEffect(key1 = true) {
+    val lifecycleObserver=
+//        rememberSaveable {
+        PlayerScreenObserver(viewModel)
+//    }
+    val lifecycleOwner= LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
         viewModel.markOnline()
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
         onDispose {
             viewModel.unmarkOnline()
+            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
         }
     }
     val users=viewModel.playersList.collectAsStateWithLifecycle()
@@ -519,7 +533,7 @@ fun TimerDialog(
         }
     }
     val timer= rememberSaveable {
-        mutableStateOf(10)
+        mutableStateOf(11)
     }
     LaunchedEffect(true) {
         while (timer.value>0) {
@@ -632,5 +646,19 @@ fun InvitedDialog(
         },
         containerColor = DeepOrange50300
     )
+}
+
+class PlayerScreenObserver(private val viewModel: PlayersViewModel):LifecycleObserver {
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    fun markOnline() {
+        viewModel.markOnline()
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    fun markOffline() {
+        viewModel.unmarkOnline()
+    }
+
 }
 
