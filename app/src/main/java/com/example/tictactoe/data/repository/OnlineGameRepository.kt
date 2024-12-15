@@ -21,6 +21,8 @@ class OnlineGameRepository @Inject constructor() {
 
     private val _matchState: MutableStateFlow<Match> = MutableStateFlow(Match())
     val matchState: StateFlow<Match> = _matchState
+    private val _currentUser:MutableStateFlow<User> = MutableStateFlow(User())
+    val currentUser:StateFlow<User> = _currentUser
     private val matchesReference = FirebaseFirestore.getInstance().collection("matches")
     private val usersReference = FirebaseFirestore.getInstance().collection("users")
 
@@ -45,6 +47,13 @@ class OnlineGameRepository @Inject constructor() {
                 if (currMatch != _matchState.value) {
                     _matchState.value = currMatch
                 }
+            }
+        }
+        usersReference.document(FirebaseAuth.getInstance().currentUser!!.email!!).addSnapshotListener{
+                documentSnapshot, exception ->
+            if(exception!=null) return@addSnapshotListener
+            documentSnapshot?.toObject(User::class.java)?.let { currUser->
+                _currentUser.value=currUser
             }
         }
     }
@@ -192,6 +201,7 @@ class OnlineGameRepository @Inject constructor() {
     fun removeMatch() {
         val coroutineScope= CoroutineScope(Dispatchers.IO)
         coroutineScope.launch {
+            if(matchesReference.document(matchState.value.matchId).get().exception==null)
             matchesReference.document(matchState.value.matchId).delete()
         }
     }
@@ -229,7 +239,6 @@ class OnlineGameRepository @Inject constructor() {
 
     fun resetUser() {
         usersReference.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("playing",false)
-        usersReference.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("matchId","")
         usersReference.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("matchId","")
     }
 

@@ -119,8 +119,16 @@ fun OnlineGameScreen(
         }
         val viewModel: OnlineGameViewModel = hiltViewModel()
         val matchState = viewModel.matchState.collectAsStateWithLifecycle()
+        val currentUser=viewModel.currentUser.collectAsStateWithLifecycle()
         if(matchState.value.winner!="") {
             showDialog.value=true
+        }
+        LaunchedEffect(key1 = currentUser.value.matchId) {
+            delay(1000)
+            if(currentUser.value.matchId=="") {
+                viewModel.removeMatch()
+                moveBack()
+            }
         }
         if(showDialog.value) {
             ShowWinner(
@@ -352,9 +360,11 @@ fun ShowWinner(
                 showDialog.value=false
             }
             else if(matchState.value.playAgain1==0 || matchState.value.playAgain2==0) {
+//                moveBack()
+//                removeMatch()
+                removeMatch()
                 resetUser()
 //                moveBack()
-                moveBack()
 //                moveBack()
                 showDialog.value=false
 //                removeMatch()

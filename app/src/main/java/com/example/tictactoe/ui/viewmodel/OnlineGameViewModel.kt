@@ -3,6 +3,7 @@ package com.example.tictactoe.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tictactoe.data.model.Match
+import com.example.tictactoe.data.model.User
 import com.example.tictactoe.data.repository.OnlineGameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +17,7 @@ class OnlineGameViewModel @Inject constructor(
         private val onlineGameRepository: OnlineGameRepository
     ):ViewModel() {
         val matchState:StateFlow<Match> = onlineGameRepository.matchState
-
+        val currentUser:StateFlow<User> = onlineGameRepository.currentUser
     fun fetchMatchState(matchId:String) {
         onlineGameRepository.fetchMatchState(matchId)
     }
