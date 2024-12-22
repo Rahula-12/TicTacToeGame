@@ -63,6 +63,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.util.Timer
 
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
@@ -111,17 +112,11 @@ fun OnlineGameScreen(
             )
         }
     ) { it ->
-        val timer = rememberSaveable {
-            mutableStateOf(11)
-        }
-        val showDialog= rememberSaveable {
-            mutableStateOf(false)
-        }
         val viewModel: OnlineGameViewModel = hiltViewModel()
         val matchState = viewModel.matchState.collectAsStateWithLifecycle()
         val currentUser=viewModel.currentUser.collectAsStateWithLifecycle()
-        if(matchState.value.winner!="") {
-            showDialog.value=true
+        val timer = rememberSaveable {
+            mutableStateOf(10)
         }
         LaunchedEffect(key1 = currentUser.value.matchId) {
             delay(1000)
@@ -130,7 +125,35 @@ fun OnlineGameScreen(
                 moveBack()
             }
         }
-        if(showDialog.value) {
+        LaunchedEffect(key1 = true) {
+            withContext(Dispatchers.IO) {
+                viewModel.fetchMatchState(matchId)
+            }
+        }
+        LaunchedEffect(key1 = matchState.value.turn) {
+            timer.value=10
+        }
+        LaunchedEffect(key1 = timer.value) {
+            if(timer.value==0) {
+                if(matchState.value.turn==0 && matchState.value.player1Id==FirebaseAuth.getInstance().currentUser?.email) {
+                    viewModel.updateMatch(winner = matchState.value.player2Id,matchId=matchState.value.matchId)
+                }
+                else if(matchState.value.turn==1 && matchState.value.player2Id==FirebaseAuth.getInstance().currentUser?.email) {
+                    viewModel.updateMatch(winner = matchState.value.player1Id,matchId=matchState.value.matchId)
+                }
+            }
+            else {
+                delay(1000)
+                timer.value-=1
+            }
+        }
+        val showDialog= rememberSaveable {
+            mutableStateOf(false)
+        }
+        if(matchState.value.winner!="") {
+            showDialog.value=true
+        }
+        if(showDialog.value && matchState.value.winner!="") {
             ShowWinner(
                 showDialog,
                 winningStatement =
@@ -148,18 +171,11 @@ fun OnlineGameScreen(
                     viewModel.playAgain(playing,matchId)
                 },
                 resetMatch={viewModel.resetMatch(matchId)},
-                moveBack=moveBack,
-                removeMatch = {
-                    viewModel.removeMatch()
-                }
-            ){
-                viewModel.resetUser()
-            }
-        }
-        LaunchedEffect(key1 = true) {
-            withContext(Dispatchers.IO) {
-                viewModel.fetchMatchState(matchId)
-            }
+                resetUser = {
+                    viewModel.resetUser()
+                },
+                timer
+            )
         }
 //        LaunchedEffect(key1 = matchState.value.winner) {
 //            delay(2000)
@@ -201,7 +217,10 @@ fun OnlineGameScreen(
                         fontSize = TextUnit(25f, TextUnitType.Sp)
                     )
                     Text(
-                        text = "0",
+                        text = when(matchState.value.turn) {
+                            0->timer.value.toString()
+                            else->""
+                        },
                         modifier = modifier
                             .background(
                                 Pink80
@@ -311,7 +330,10 @@ fun OnlineGameScreen(
                         fontSize = TextUnit(25f, TextUnitType.Sp)
                     )
                     Text(
-                        text = "0",
+                        text = when(matchState.value.turn) {
+                            0->""
+                            else->timer.value.toString()
+                        },
                         modifier = modifier
                             .background(
                                 Pink80
@@ -340,9 +362,8 @@ fun ShowWinner(
     matchState: State<Match>,
     playAgain:(Boolean,String)->Unit={_,_->},
     resetMatch:()->Unit={},
-    moveBack:()->Unit={},
-    removeMatch:()->Unit,
-    resetUser:()->Unit
+    resetUser:()->Unit,
+    timer: MutableState<Int>
     ) {
 //    val showTimer= rememberSaveable {
 //        mutableStateOf(false)
@@ -362,7 +383,6 @@ fun ShowWinner(
             else if(matchState.value.playAgain1==0 || matchState.value.playAgain2==0) {
 //                moveBack()
 //                removeMatch()
-                removeMatch()
                 resetUser()
 //                moveBack()
 //                moveBack()
@@ -395,6 +415,7 @@ fun ShowWinner(
 //                sendInvite()
 //                showTimer.value=true
                 playAgain(true,matchState.value.matchId)
+                timer.value=10
                     showDialog.value=false
             }) {
                 Text(

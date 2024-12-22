@@ -214,4 +214,14 @@ class OnlineGameViewModel @Inject constructor(
         onlineGameRepository.resetUser()
     }
 
+    fun updateMatch(
+        winner: String? = null,
+        gameState: List<MutableList<Int>>? = null,
+        turn: Int? = null,
+        direction: Int? = null,
+        matchId: String
+    ) {
+        onlineGameRepository.updateMatch(winner,gameState,turn,direction,matchId)
+    }
+
 }

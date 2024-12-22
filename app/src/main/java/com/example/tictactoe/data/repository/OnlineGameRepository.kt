@@ -146,33 +146,37 @@ class OnlineGameRepository @Inject constructor() {
                         val matchesDraw = doc.get("matchesDraw") as? Long
                         val matchesDrawInt = matchesDraw?.toInt() ?: 0
                         usersReference.document(senderMail).update("matchesDraw", 1 + matchesDrawInt)
-                        val user=doc.toObject(User::class.java)
-                        user?.let { curr->
-                            val totalMatches=curr.totalMatches
-                            if(totalMatches[invitedMail]!=null) {
-                                totalMatches[invitedMail]=totalMatches[invitedMail]!!+1
+                        usersReference.document(senderMail).get().addOnSuccessListener {curr->
+                            val user=curr.toObject(User::class.java)
+                            user?.let { u->
+                                val totalMatches=u.totalMatches
+                                if(totalMatches[invitedMail]!=null) {
+                                    totalMatches[invitedMail]=  totalMatches[invitedMail]!!+1
+                                }
+                                else {
+                                    totalMatches[invitedMail]=1
+                                }
                             }
-                            else {
-                                totalMatches[invitedMail]=1
-                            }
+                            usersReference.document(senderMail).set(user!!)
                         }
-                        usersReference.document(senderMail).set(user!!)
                     }
                     usersReference.document(invitedMail).get().addOnSuccessListener { doc ->
                         val matchesDraw = doc.get("matchesDraw") as? Long
                         val matchesDrawInt = matchesDraw?.toInt() ?: 0
                         usersReference.document(invitedMail).update("matchesDraw", 1 + matchesDrawInt)
-                        val user=doc.toObject(User::class.java)
-                        user?.let { curr->
-                            val totalMatches=curr.totalMatches
-                            if(totalMatches[senderMail]!=null) {
-                                totalMatches[senderMail]=totalMatches[senderMail]!!+1
+                        usersReference.document(invitedMail).get().addOnSuccessListener {curr->
+                            val user=curr.toObject(User::class.java)
+                            user?.let { u->
+                                val totalMatches=u.totalMatches
+                                if(totalMatches[senderMail]!=null) {
+                                    totalMatches[senderMail]=  totalMatches[senderMail]!!+1
+                                }
+                                else {
+                                    totalMatches[senderMail]=1
+                                }
                             }
-                            else {
-                                totalMatches[senderMail]=1
-                            }
+                            usersReference.document(invitedMail).set(user!!)
                         }
-                        usersReference.document(invitedMail).set(user!!)
                     }
                 }
             }
