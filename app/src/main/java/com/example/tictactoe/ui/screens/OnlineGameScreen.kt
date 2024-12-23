@@ -135,12 +135,14 @@ fun OnlineGameScreen(
         }
         LaunchedEffect(key1 = timer.value) {
             if(timer.value==0) {
+                if(matchState.value.winner=="") {
                 if(matchState.value.turn==0 && matchState.value.player1Id==FirebaseAuth.getInstance().currentUser?.email) {
                     viewModel.updateMatch(winner = matchState.value.player2Id,matchId=matchState.value.matchId)
                 }
                 else if(matchState.value.turn==1 && matchState.value.player2Id==FirebaseAuth.getInstance().currentUser?.email) {
                     viewModel.updateMatch(winner = matchState.value.player1Id,matchId=matchState.value.matchId)
                 }
+                    }
             }
             else {
                 delay(1000)
@@ -217,10 +219,13 @@ fun OnlineGameScreen(
                         fontSize = TextUnit(25f, TextUnitType.Sp)
                     )
                     Text(
-                        text = when(matchState.value.turn) {
-                            0->timer.value.toString()
-                            else->""
-                        },
+                        text = if(matchState.value.winner=="") {
+                            when (matchState.value.turn) {
+                                0 -> timer.value.toString()
+                                else -> ""
+                            }
+                        }
+                        else "",
                         modifier = modifier
                             .background(
                                 Pink80
@@ -330,10 +335,13 @@ fun OnlineGameScreen(
                         fontSize = TextUnit(25f, TextUnitType.Sp)
                     )
                     Text(
-                        text = when(matchState.value.turn) {
-                            0->""
-                            else->timer.value.toString()
-                        },
+                        text = if(matchState.value.winner=="") {
+                            when (matchState.value.turn) {
+                                1 -> timer.value.toString()
+                                else -> ""
+                            }
+                        }
+                        else "",
                         modifier = modifier
                             .background(
                                 Pink80

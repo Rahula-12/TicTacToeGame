@@ -358,7 +358,7 @@ fun UserAndMatchesPlayed(
     val data:List<List<Any>> = usersAndMatches.map {
         listOf(it.key,it.value)
     }
-    if(showDialog.value) {
+    if(showDialog.value && data.isNotEmpty()) {
         SelectPlayerDialog(showDialog,data,index.intValue, sendInvite = {
             viewModel.sendInvite(data[index.intValue][0].toString())
         })

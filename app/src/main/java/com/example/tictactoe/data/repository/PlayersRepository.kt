@@ -45,16 +45,23 @@ class PlayersRepository @Inject constructor() {
     }
 
     fun registerUser() {
-        val firebaseAuth=FirebaseAuth.getInstance()
-        val user= User(
-            emailId=firebaseAuth.currentUser?.email?:"",
-            matchesLost=0,
-            matchesWon = 0,
-            matchesDraw = 0,
-            isPlaying = false,
-            totalMatches= mutableMapOf()
-        )
-        usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).set(user)
+        val coroutineScope= CoroutineScope(Dispatchers.IO)
+        val userPresent=usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).get()
+        coroutineScope.launch {
+            if(userPresent.exception==null) return@launch
+            else {
+                val firebaseAuth=FirebaseAuth.getInstance()
+                val user= User(
+                    emailId=firebaseAuth.currentUser?.email?:"",
+                    matchesLost=0,
+                    matchesWon = 0,
+                    matchesDraw = 0,
+                    isPlaying = false,
+                    totalMatches= mutableMapOf()
+                )
+                usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).set(user)
+            }
+        }
     }
 
     private fun getUsers() {
