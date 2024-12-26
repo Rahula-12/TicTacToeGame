@@ -72,9 +72,7 @@ fun TicTacToeApp(viewModel: TicTacToeViewModel,logOut:()->Unit={}) {
             matchId?.let {
                 OnlineGameScreen(
                     matchId = it,
-                    moveBack = {
-                        navController.popBackStack()
-                    }
+                    navController = navController
                 )
             }
         }
