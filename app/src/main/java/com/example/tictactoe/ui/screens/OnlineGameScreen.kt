@@ -127,7 +127,10 @@ fun OnlineGameScreen(
     ) { it ->
         val currentUser=viewModel.currentUser.collectAsStateWithLifecycle()
         val timer = rememberSaveable(inputs= arrayOf(matchState.value.turn)) {
-            mutableStateOf(10)
+//            if(matchState.value.winner=="")
+            mutableIntStateOf(10)
+//            else
+//                mutableIntStateOf(-1)
         }
         LaunchedEffect(key1 = currentUser.value.matchId) {
             delay(1000)
@@ -142,7 +145,7 @@ fun OnlineGameScreen(
                 viewModel.fetchMatchState(matchId)
             }
         }
-        LaunchedEffect(key1 = timer.value) {
+        LaunchedEffect(key1 = arrayOf(timer.intValue,matchState.value.winner)) {
             if(timer.value==0) {
                 if(matchState.value.winner=="") {
                 if(matchState.value.turn==0 && matchState.value.player1Id==FirebaseAuth.getInstance().currentUser?.email) {
@@ -153,7 +156,7 @@ fun OnlineGameScreen(
                 }
                     }
             }
-            else {
+            else if(timer.value>0){
                 delay(1000)
                 timer.value-=1
             }
@@ -184,7 +187,8 @@ fun OnlineGameScreen(
                 resetMatch={viewModel.resetMatch(matchId)},
                 resetUser = {
                     viewModel.resetUser()
-                }
+                },
+                timer
             )
         }
 //        LaunchedEffect(key1 = matchState.value.winner) {
@@ -253,7 +257,7 @@ fun OnlineGameScreen(
                 Box(
                     modifier = Modifier
 //                        .padding(top=20.dp, bottom = 20.dp)
-                        .fillMaxSize(0.9f)
+                        .size(250.dp)
                         .aspectRatio(1f)
                         .background(DeepOrange50100)
 //                        .align(Alignment.TopCenter)
@@ -378,7 +382,8 @@ fun ShowWinner(
     matchState: State<Match>,
     playAgain: (Boolean, String) -> Unit = { _, _ -> },
     resetMatch: () -> Unit = {},
-    resetUser: () -> Unit
+    resetUser: () -> Unit,
+    timer:MutableState<Int>
 ) {
     val context= LocalContext.current
     val countDown= rememberSaveable {
@@ -437,7 +442,7 @@ fun ShowWinner(
 //                sendInvite()
                 showTimer.value=true
                 playAgain(true,matchState.value.matchId)
-                //timer.value=10
+                timer.value=10
                 showDialog.value=false
             }) {
                 Text(

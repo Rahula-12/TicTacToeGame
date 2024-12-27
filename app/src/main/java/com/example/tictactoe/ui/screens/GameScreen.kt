@@ -133,11 +133,12 @@ fun FixedGrid(
             )
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize(0.6f)
+                        .size(250.dp)
                         .padding(
                             top = 100.dp
                         )
