@@ -30,7 +30,7 @@ fun TicTacToeApp(viewModel: TicTacToeViewModel,logOut:()->Unit={}) {
                     navController.navigate(Screen.HomeScreen.name)
                 },
                 onBackPressed = {
-                    navController.popBackStack()
+                    logOut()
                 },
                 onlineModeSelected = {
                     navController.navigate(Screen.SelectPlayerScreen.name)
@@ -55,7 +55,9 @@ fun TicTacToeApp(viewModel: TicTacToeViewModel,logOut:()->Unit={}) {
 //                    viewModel.reset(0)
                     navController.navigate(Screen.GameScreen.name)
                 },
-                logOut=logOut,
+                onBackPressed= {
+                    navController.popBackStack()
+                },
                 viewModel = viewModel
             )
         }

@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -71,7 +74,7 @@ fun ModesScreen(
                 },
                 navigationIcon = {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack,
+                        painter = painterResource(id = R.drawable.baseline_logout_24),
                         contentDescription = "back",
                         modifier = Modifier
                             .clickable {
@@ -98,10 +101,15 @@ fun ModesScreen(
             )
             Column(
                 horizontalAlignment = Alignment.Start,
-                modifier = modifier.padding(
-                    start = 10.dp,
-                    end=10.dp
-                ).fillMaxHeight(),
+                modifier = modifier
+                    .padding(
+                        top = 90.dp,
+                        start = 10.dp,
+                        end = 10.dp
+                    )
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState())
+                ,
                 verticalArrangement = Arrangement.Center
             ) {
                 Button(
@@ -143,9 +151,10 @@ fun ModesScreen(
                     onClick = {
                         onlineModeSelected()
                     },
-                    modifier= modifier.padding(
-                        top=50.dp
-                    )
+                    modifier= modifier
+                        .padding(
+                            top = 50.dp
+                        )
                         .fillMaxWidth(),
                     colors= ButtonDefaults.buttonColors(
                         containerColor = DeepOrange50300

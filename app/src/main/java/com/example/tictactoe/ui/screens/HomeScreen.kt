@@ -79,7 +79,7 @@ fun HomeScreen(
     viewModel: TicTacToeViewModel,
     modifier:Modifier=Modifier,
     onNextClick:()->Unit={},
-    logOut:()->Unit={}
+    onBackPressed:()->Unit={}
 ){
     val gameState=viewModel.gameState.collectAsState().value
     val tempCheck= rememberSaveable {
@@ -117,12 +117,12 @@ fun HomeScreen(
                         },
                         navigationIcon = {
                             Icon(
-                                painter = painterResource(R.drawable.baseline_logout_24),
+                                imageVector = Icons.Filled.ArrowBack,
                                 contentDescription = "back",
                                 modifier = Modifier
                                     .clickable {
                                         FirebaseAuth.getInstance().signOut()
-                                        logOut()
+                                        onBackPressed()
                                     }
                                     .size(40.dp)
     //                                .background(DeepOrange50200)
@@ -151,7 +151,9 @@ fun HomeScreen(
 //                    .matchParentSize()
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
             ) {
                 var name1 by rememberSaveable {
                     mutableStateOf("")

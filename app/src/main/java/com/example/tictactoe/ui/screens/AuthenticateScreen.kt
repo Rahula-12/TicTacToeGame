@@ -1,5 +1,7 @@
 package com.example.tictactoe.ui.screens
 
+import android.net.ConnectivityManager
+import android.net.Network
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -25,8 +27,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,6 +62,9 @@ import com.example.tictactoe.ui.theme.DeepOrange50900
 import com.example.tictactoe.ui.theme.LightBlue
 import com.example.tictactoe.ui.theme.Pink40
 import com.example.tictactoe.ui.theme.Pink80
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -68,6 +76,56 @@ fun AuthenticateScreen(
     onSignInWithGoogleClicked:()->Unit={}
 ) {
     val context = LocalContext.current
+    val noNetwork= rememberSaveable {
+        mutableStateOf(false)
+    }
+    val networkDialog= rememberSaveable {
+        mutableStateOf(false)
+    }
+    val coroutineScope= rememberCoroutineScope()
+    val connectivityManager=context.getSystemService(ConnectivityManager::class.java)
+    val networkCallback=object:ConnectivityManager.NetworkCallback() {
+        override fun onUnavailable() {
+            super.onUnavailable()
+            noNetwork.value=true
+            coroutineScope.launch {
+                while(noNetwork.value) {
+                    networkDialog.value=true
+                    delay(5000)
+                }
+
+            }
+        }
+
+        override fun onLost(network: Network) {
+            super.onLost(network)
+            noNetwork.value=true
+            coroutineScope.launch {
+                while(noNetwork.value) {
+                    networkDialog.value=true
+                    delay(5000)
+                }
+
+            }
+        }
+
+        override fun onAvailable(network: Network) {
+            super.onAvailable(network)
+            noNetwork.value=false
+        }
+    }
+    if(networkDialog.value) {
+        NoInternetDialog {
+            networkDialog.value=false
+        }
+    }
+    DisposableEffect(Unit) {
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
+        onDispose {
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

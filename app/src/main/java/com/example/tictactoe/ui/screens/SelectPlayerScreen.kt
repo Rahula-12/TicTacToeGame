@@ -1,6 +1,8 @@
 package com.example.tictactoe.ui.screens
 
 //import coil3.compose.AsyncImage
+import android.net.ConnectivityManager
+import android.net.Network
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,7 +21,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
@@ -95,6 +100,50 @@ fun SelectPlayerScreen(
     moveToGameScreen:(matchId:String)->Unit={},
     moveBack:()->Unit={}
 ) {
+    val context = LocalContext.current
+    val noNetwork= rememberSaveable {
+        mutableStateOf(false)
+    }
+    val networkDialog= rememberSaveable {
+        mutableStateOf(false)
+    }
+    val coroutineScope= rememberCoroutineScope()
+    val connectivityManager=context.getSystemService(ConnectivityManager::class.java)
+    val networkCallback=object: ConnectivityManager.NetworkCallback() {
+        override fun onUnavailable() {
+            super.onUnavailable()
+            noNetwork.value=true
+            coroutineScope.launch {
+                while(noNetwork.value) {
+                    networkDialog.value=true
+                    delay(5000)
+                }
+
+            }
+        }
+
+        override fun onLost(network: Network) {
+            super.onLost(network)
+            noNetwork.value=true
+            coroutineScope.launch {
+                while(noNetwork.value) {
+                    networkDialog.value=true
+                    delay(5000)
+                }
+
+            }
+        }
+
+        override fun onAvailable(network: Network) {
+            super.onAvailable(network)
+            noNetwork.value=false
+        }
+    }
+    if(networkDialog.value) {
+        NoInternetDialog {
+            networkDialog.value=false
+        }
+    }
     val viewModel:PlayersViewModel = hiltViewModel()
     val lifecycleObserver=
 //        rememberSaveable {
@@ -104,9 +153,11 @@ fun SelectPlayerScreen(
     DisposableEffect(lifecycleOwner) {
         viewModel.markOnline()
         lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
         onDispose {
             viewModel.unmarkOnline()
             lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+            connectivityManager.unregisterNetworkCallback(networkCallback)
         }
     }
     val users=viewModel.playersList.collectAsStateWithLifecycle()
@@ -138,7 +189,6 @@ fun SelectPlayerScreen(
             }
         }
     }
-    val context= LocalContext.current
     if(invited.value!="") {
         if(invited.value=="Accepted Invite") {
 //            moveToGameScreen()
@@ -194,7 +244,10 @@ fun SelectPlayerScreen(
             )
         }
     ) { it ->
-        Box(modifier = modifier.fillMaxSize()) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.background),
                 contentDescription = "background",
@@ -206,7 +259,8 @@ fun SelectPlayerScreen(
                     .fillMaxSize()
                     .padding(
                         top = 50.dp
-                    ),
+                    )
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
@@ -407,18 +461,19 @@ fun UserAndMatchesPlayed(
         val list: List<List<Any>> = usersAndMatches.map {
             listOf(it.key, it.value)
         }
-        LazyColumn(
+        Column(
             modifier = modifier.fillMaxWidth()
         ) {
-            items(list.size) { it ->
+            for (i in list.indices) {
+                val it=list[i]
                 Row(
                     modifier=modifier.clickable {
                         showDialog.value=true
-                        index.intValue=it
+                        index.intValue=i
                     }
                 ) {
                     Text(
-                        text = list[it][0].toString(),
+                        text = it[0].toString(),
                         modifier = modifier
                             .weight(2f)
                             .background(DeepOrange50),
@@ -433,7 +488,7 @@ fun UserAndMatchesPlayed(
                         fontSize = TextUnit(23f, TextUnitType.Sp)
                     )
                     Text(
-                        text = list[it][1].toString(),
+                        text = it[1].toString(),
                         modifier = modifier
                             .weight(1f)
                             .background(

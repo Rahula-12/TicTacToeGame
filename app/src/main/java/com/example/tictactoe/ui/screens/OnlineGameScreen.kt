@@ -1,5 +1,7 @@
 package com.example.tictactoe.ui.screens
 
+import android.net.ConnectivityManager
+import android.net.Network
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -29,11 +32,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,6 +74,7 @@ import com.example.tictactoe.ui.viewmodel.OnlineGameViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,6 +84,56 @@ fun OnlineGameScreen(
     matchId: String = "",
     navController: NavController
 ) {
+    val context = LocalContext.current
+    val noNetwork= rememberSaveable {
+        mutableStateOf(false)
+    }
+    val networkDialog= rememberSaveable {
+        mutableStateOf(false)
+    }
+    val coroutineScope= rememberCoroutineScope()
+    val connectivityManager=context.getSystemService(ConnectivityManager::class.java)
+    val networkCallback=object: ConnectivityManager.NetworkCallback() {
+        override fun onUnavailable() {
+            super.onUnavailable()
+            noNetwork.value=true
+            coroutineScope.launch {
+                while(noNetwork.value) {
+                    networkDialog.value=true
+                    delay(5000)
+                }
+
+            }
+        }
+
+        override fun onLost(network: Network) {
+            super.onLost(network)
+            noNetwork.value=true
+            coroutineScope.launch {
+                while(noNetwork.value) {
+                    networkDialog.value=true
+                    delay(5000)
+                }
+
+            }
+        }
+
+        override fun onAvailable(network: Network) {
+            super.onAvailable(network)
+            noNetwork.value=false
+        }
+    }
+    if(networkDialog.value) {
+        NoInternetDialog {
+            networkDialog.value=false
+        }
+    }
+    DisposableEffect(Unit) {
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
+        onDispose {
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+        }
+    }
     val moveBackDialog= rememberSaveable {
         mutableStateOf(false)
     }
@@ -127,10 +183,7 @@ fun OnlineGameScreen(
     ) { it ->
         val currentUser=viewModel.currentUser.collectAsStateWithLifecycle()
         val timer = rememberSaveable(inputs= arrayOf(matchState.value.turn)) {
-//            if(matchState.value.winner=="")
             mutableIntStateOf(10)
-//            else
-//                mutableIntStateOf(-1)
         }
         LaunchedEffect(key1 = currentUser.value.matchId) {
             delay(1000)
@@ -197,7 +250,8 @@ fun OnlineGameScreen(
 //        }
 //        viewModel.fetchMatchState(matchId)
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                        .fillMaxSize()
         ) {
             Image(
                 painter = painterResource(id = R.drawable.background),
@@ -210,10 +264,14 @@ fun OnlineGameScreen(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(top=90.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 Row(
-                    modifier = modifier.fillMaxWidth(),
+                    modifier = modifier.fillMaxWidth().padding(
+                        start = 20.dp,
+                        end=20.dp
+                    ),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
@@ -329,7 +387,10 @@ fun OnlineGameScreen(
                     }
                 }
                 Row(
-                    modifier = modifier.fillMaxWidth(),
+                    modifier = modifier.fillMaxWidth().padding(
+                        start = 20.dp,
+                        end=20.dp
+                    ),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(

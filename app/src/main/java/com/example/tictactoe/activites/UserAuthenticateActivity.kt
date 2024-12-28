@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -18,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tictactoe.R
 import com.example.tictactoe.ui.navigation.TicTacToeApp
 import com.example.tictactoe.ui.screens.AuthenticateScreen
+import com.example.tictactoe.ui.screens.NoInternetDialog
 import com.example.tictactoe.ui.theme.TicTacToeTheme
 import com.example.tictactoe.ui.viewmodel.AuthViewModel
 import com.example.tictactoe.ui.viewmodel.TicTacToeViewModel
@@ -38,6 +40,8 @@ class UserAuthenticateActivity : ComponentActivity() {
     private lateinit var firebaseAuth:FirebaseAuth
 
     private lateinit var authViewModel:AuthViewModel
+
+    private var noInternetDialog:Boolean=false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
