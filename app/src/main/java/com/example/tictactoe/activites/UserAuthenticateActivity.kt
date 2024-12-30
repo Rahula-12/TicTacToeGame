@@ -141,7 +141,6 @@ class UserAuthenticateActivity : ComponentActivity() {
                     val intent = Intent(this, MainActivity::class.java)
                     authViewModel.register()
                     startActivity(intent)
-                    finish()
                 } else {
                     // If sign in fails, display a message to the user.
                     Toast.makeText(

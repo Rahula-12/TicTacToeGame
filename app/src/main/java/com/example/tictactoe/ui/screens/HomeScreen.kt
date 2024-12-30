@@ -121,7 +121,6 @@ fun HomeScreen(
                                 contentDescription = "back",
                                 modifier = Modifier
                                     .clickable {
-                                        FirebaseAuth.getInstance().signOut()
                                         onBackPressed()
                                     }
                                     .size(40.dp)

@@ -48,7 +48,7 @@ class PlayersRepository @Inject constructor() {
         val coroutineScope= CoroutineScope(Dispatchers.IO)
         val userPresent=usersRef.document(FirebaseAuth.getInstance().currentUser!!.email!!).get()
         coroutineScope.launch {
-            if(userPresent.exception==null) return@launch
+            if(userPresent.await().exists()) return@launch
             else {
                 val firebaseAuth=FirebaseAuth.getInstance()
                 val user= User(
