@@ -12,6 +12,7 @@ import com.example.tictactoe.ui.navigation.TicTacToeApp
 import com.example.tictactoe.ui.viewmodel.TicTacToeViewModel
 import com.example.tictactoe.ui.theme.TicTacToeTheme
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
                         logOut = {
                             finish()
                             googleSignInClient.signOut()
+                            FirebaseAuth.getInstance().signOut()
                         }
                     )
                 }

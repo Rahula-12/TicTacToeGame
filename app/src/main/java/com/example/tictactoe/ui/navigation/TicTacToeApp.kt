@@ -1,17 +1,15 @@
 package com.example.tictactoe.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.tictactoe.ui.viewmodel.TicTacToeViewModel
 import com.example.tictactoe.ui.screens.GameScreen
 import com.example.tictactoe.ui.screens.HomeScreen
 import com.example.tictactoe.ui.screens.ModesScreen
 import com.example.tictactoe.ui.screens.OnlineGameScreen
 import com.example.tictactoe.ui.screens.SelectPlayerScreen
-import com.example.tictactoe.ui.viewmodel.OnlineGameViewModel
+import com.example.tictactoe.ui.viewmodel.TicTacToeViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 enum class Screen{

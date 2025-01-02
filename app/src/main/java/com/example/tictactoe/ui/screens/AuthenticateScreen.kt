@@ -46,6 +46,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -160,7 +162,7 @@ fun AuthenticateScreen(
             mutableStateOf(false)
         }
         Box(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier.padding(it).fillMaxSize(),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.background),
@@ -169,7 +171,7 @@ fun AuthenticateScreen(
                 contentScale = ContentScale.FillBounds
             )
             Column(
-                verticalArrangement = Arrangement.Top,
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = modifier
                     .fillMaxSize()
@@ -199,7 +201,7 @@ fun AuthenticateScreen(
                         .padding(
                             start = 15.dp,
                             end = 15.dp,
-                            top = 200.dp
+//                            top = 200.dp
                         )
                         .border(
                             width = 4.dp, color = Pink40
@@ -207,6 +209,7 @@ fun AuthenticateScreen(
                         .background(DeepOrange50900),
                 )
                 OutlinedTextField(
+                    visualTransformation = PasswordVisualTransformation(),
                     placeholder = {
                         Text(
                             text = "Enter password",
@@ -291,7 +294,7 @@ fun AuthenticateScreen(
                             }
                         },
                         modifier = modifier.padding(
-                            top = 10.dp
+                            top = 15.dp
                         ),
                         textAlign = TextAlign.Center
                     )
@@ -309,7 +312,7 @@ fun AuthenticateScreen(
                             }
                         },
                         modifier = modifier.padding(
-                            top = 10.dp
+                            top = 15.dp
                         )
                     ) {
                         isLogging = !isLogging
@@ -321,7 +324,7 @@ fun AuthenticateScreen(
                     fontSize = TextUnit(25f, TextUnitType.Sp),
                     color = Pink80,
                     modifier = modifier.padding(
-                        top = 25.dp
+                        top = 20.dp
                     )
                 )
                 Button(
