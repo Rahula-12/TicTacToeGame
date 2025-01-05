@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -53,6 +54,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
@@ -275,9 +277,11 @@ fun OnlineGameScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         text = matchState.value.player1Id,
                         modifier = modifier
-                            .background(DeepOrange50),
+                            .background(DeepOrange50).requiredWidthIn(0.dp,300.dp),
                         textAlign = TextAlign.Center,
                         fontFamily = FontFamily(
                             Font(
@@ -394,9 +398,11 @@ fun OnlineGameScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         text = matchState.value.player2Id,
                         modifier = modifier
-                            .background(DeepOrange50),
+                            .background(DeepOrange50).requiredWidthIn(0.dp,300.dp),
                         textAlign = TextAlign.Center,
                         fontFamily = FontFamily(
                             Font(

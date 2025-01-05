@@ -18,8 +18,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -57,6 +60,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
@@ -270,7 +274,6 @@ fun SelectPlayerScreen(
                     contentDescription = null,
                     modifier = modifier
                         .size(200.dp)
-                        .clipToBounds()
                         .clip(CircleShape)
                         .padding(
                             top = 100.dp
@@ -278,6 +281,8 @@ fun SelectPlayerScreen(
                 )
                 Text(
                     text = currentUserEmail,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = modifier
                         .padding(
                             top = 10.dp
@@ -287,7 +292,8 @@ fun SelectPlayerScreen(
                         )
                         .padding(
                             5.dp
-                        ),
+                        )
+                        .requiredWidthIn(0.dp,400.dp),
                     fontFamily = FontFamily(
                         Font(
                             R.font.kalam_bold,
@@ -470,13 +476,15 @@ fun UserAndMatchesPlayed(
                     modifier=modifier.clickable {
                         showDialog.value=true
                         index.intValue=i
-                    }
+                    }.wrapContentHeight()
                 ) {
                     Text(
+                        maxLines=1,
+                        overflow = TextOverflow.Ellipsis,
                         text = it[0].toString(),
                         modifier = modifier
                             .weight(2f)
-                            .background(DeepOrange50),
+                            .background(DeepOrange50).fillMaxHeight(),
                         textAlign = TextAlign.Center,
                         fontFamily = FontFamily(
                             Font(
@@ -488,12 +496,14 @@ fun UserAndMatchesPlayed(
                         fontSize = TextUnit(23f, TextUnitType.Sp)
                     )
                     Text(
+                        maxLines=1,
+                        overflow = TextOverflow.Ellipsis,
                         text = it[1].toString(),
                         modifier = modifier
                             .weight(1f)
                             .background(
                                 Pink80
-                            ),
+                            ).fillMaxHeight(),
                         textAlign = TextAlign.Center,
                         fontFamily = FontFamily(
                             Font(
