@@ -29,6 +29,16 @@ To run the apk directly on device, use this [link](https://github.com/Rahula-12/
 ## Screenshots
 
 <div>
+<img src="TicTacToe1.png" width="100" height="200">
+<img src="TicTacToe2.png" width="100" height="200">
+<img src="TicTacToe3.png" width="100" height="200">
+<img src="TicTacToe4.png" width="100" height="200">
+<img src="TicTacToe5.png" width="100" height="200">
+<img src="TicTacToe6.png" width="100" height="200">
+<img src="TicTacToe7.png" width="100" height="200">
+<img src="TicTacToe8.png" width="100" height="200">
+<img src="TicTacToe9.png" width="100" height="200">
+<img src="TicTacToe10.png" width="100" height="200">
 <img src="Screenshot_20240525_013303.png" width="100" height="200">
 <img src="Screenshot_20240525_013340.png" width="100" height="200">
 <img src="Screenshot_20240525_013413.png" width="100" height="200">
