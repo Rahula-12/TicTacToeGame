@@ -242,8 +242,10 @@ class OnlineGameRepository @Inject constructor() {
     }
 
     fun resetUser() {
-        usersReference.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("playing",false)
-        usersReference.document(FirebaseAuth.getInstance().currentUser!!.email!!).update("matchId","")
+        usersReference.document(matchState.value.player2Id).update("playing",false)
+        usersReference.document(matchState.value.player2Id).update("matchId","")
+        usersReference.document(matchState.value.player1Id).update("playing",false)
+        usersReference.document(matchState.value.player1Id).update("matchId","")
     }
 
 }

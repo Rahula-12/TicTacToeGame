@@ -207,7 +207,10 @@ fun OnlineGameScreen(
                     viewModel.updateMatch(winner = matchState.value.player2Id,matchId=matchState.value.matchId)
                 }
                 else if(matchState.value.turn==1 && matchState.value.player2Id==FirebaseAuth.getInstance().currentUser?.email) {
-                    viewModel.updateMatch(winner = matchState.value.player1Id,matchId=matchState.value.matchId)
+                    viewModel.updateMatch(
+                        winner = matchState.value.player1Id,
+                        matchId = matchState.value.matchId
+                    )
                 }
                     }
             }
@@ -464,7 +467,7 @@ fun ShowWinner(
     }
     LaunchedEffect(key1 = countDown.intValue) {
         if(countDown.intValue<=0) {
-            resetMatch()
+//            resetMatch()
             resetUser()
             showDialog.value=false
         }
